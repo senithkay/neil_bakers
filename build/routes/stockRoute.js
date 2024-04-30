@@ -68,10 +68,24 @@ router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     let data = {};
     try {
         const receivedData = req.body;
-        const changes = new Stock_1.default(req.body);
-        const updatedStock = yield Stock_1.default.findByIdAndUpdate(req.params.id, {}, { new: true });
+        const updatedStock = yield Stock_1.default.findByIdAndUpdate(req.params.id, receivedData, { new: true });
         if (updatedStock) {
             data = updatedStock;
+        }
+    }
+    catch (err) {
+        (0, logger_1.logger)(err);
+        error = err;
+    }
+    (0, http_1.sendResponse)(data, res, error);
+}));
+router.delete("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let error = undefined;
+    let data = {};
+    try {
+        const deletedStock = yield Stock_1.default.findByIdAndDelete(req.params.id, { returnDocument: 'after' });
+        if (deletedStock) {
+            data = deletedStock;
         }
     }
     catch (err) {

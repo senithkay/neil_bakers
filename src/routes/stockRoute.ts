@@ -4,6 +4,7 @@ import Stock from "../models/Stock";
 import mongoose from "mongoose";
 import {logger} from "../utils/logger";
 import {sendResponse} from "../utils/http";
+import Product from "../models/Product";
 
 const router = express.Router();
 
@@ -61,10 +62,25 @@ router.put("/:id", async (req: express.Request, res: express.Response) => {
     let data = {};
     try{
         const receivedData = req.body
-        const changes = new Stock(req.body)
-        const updatedStock = await Stock.findByIdAndUpdate(req.params.id, {}, {new: true});
+        const updatedStock = await Stock.findByIdAndUpdate(req.params.id, receivedData, {new: true});
         if (updatedStock){
             data = updatedStock
+        }
+    }
+    catch (err){
+        logger(err)
+        error = err
+    }
+    sendResponse(data, res, error);
+})
+
+router.delete("/:id", async (req: express.Request, res: express.Response) => {
+    let error = undefined
+    let data = {};
+    try{
+        const deletedStock = await Stock.findByIdAndDelete(req.params.id, {returnDocument: 'after'});
+        if (deletedStock){
+            data = deletedStock
         }
     }
     catch (err){
