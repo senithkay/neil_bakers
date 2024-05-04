@@ -17,6 +17,7 @@ const logger_1 = require("../utils/logger");
 const http_1 = require("../utils/http");
 const User_1 = __importDefault(require("../models/User"));
 const Product_1 = __importDefault(require("../models/Product"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const router = express_1.default.Router();
 router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let error = undefined;
@@ -73,11 +74,11 @@ router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     (0, http_1.sendResponse)(data, res, error);
 }));
 router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
+    const id = new mongoose_1.default.Types.ObjectId(req.params.id);
     let error = undefined;
     let data = {};
     try {
-        const deletedUser = yield Product_1.default.findByIdAndDelete(id, { returnDocument: 'after' });
+        const deletedUser = yield User_1.default.findByIdAndDelete(id, { returnDocument: 'after' });
         if (deletedUser) {
             data = deletedUser;
         }

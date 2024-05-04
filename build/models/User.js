@@ -59,7 +59,7 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'branch',
         required: [true, "Location is required"],
-        unique: [true, "The location has to be unique"],
+        // unique: [true, "The location has to be unique"],
     },
     isSuperAdmin: {
         type: Boolean,

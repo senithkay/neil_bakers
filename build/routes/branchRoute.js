@@ -25,16 +25,21 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const cookies = (_a = req.cookies) !== null && _a !== void 0 ? _a : {};
         const token = cookies.jwt;
+        console.log(token);
         if (token) {
             jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
                 if (decoded.isSuperAdmin) {
+                    console.log('a');
                     data = yield Branch_1.default.find();
                 }
                 else {
-                    data = yield Branch_1.default.findOne({ _id: decoded.uLocation });
+                    data.push(yield Branch_1.default.findOne({ _id: decoded.uLocation }));
                 }
                 (0, http_1.sendResponse)(data, res, undefined);
             }));
+        }
+        else {
+            (0, http_1.sendResponse)(data, res, undefined);
         }
     }
     catch (err) {

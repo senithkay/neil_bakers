@@ -8,7 +8,7 @@ const Schema = mongoose_1.default.Schema;
 const stockSchema = new Schema({
     productId: {
         type: Schema.Types.ObjectId,
-        unique: [true, 'A stock related to this product is already exists'],
+        ref: 'Product',
         required: [true, 'Product is required for a stock'],
     },
     date: {

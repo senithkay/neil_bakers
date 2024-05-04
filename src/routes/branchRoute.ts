@@ -12,18 +12,25 @@ router.get('/', async (req: express.Request, res: express.Response) => {
     try{
         const cookies = req.cookies??{};
         const token = cookies.jwt;
+        console.log(token);
         if (token){
             jwt.verify(token, process.env.JWT_SECRET, async (err:any, decoded:any) => {
+
                 if (decoded.isSuperAdmin){
+                    console.log('a')
                     data = await Branch.find()
                 }
                 else{
-                    data = await Branch.findOne({_id: decoded.uLocation})
+                    data.push(await Branch.findOne({_id: decoded.uLocation}))
                 }
                 sendResponse(data, res, undefined);
             })
 
         }
+        else{
+            sendResponse(data, res, undefined);
+        }
+
     }
     catch (err){
         logger(err)

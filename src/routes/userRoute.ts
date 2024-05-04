@@ -4,6 +4,7 @@ import {sendResponse} from "../utils/http";
 import User from "../models/User";
 import {createToken} from "../utils/common";
 import Product from "../models/Product";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -65,11 +66,11 @@ router.put('/:id', async (req: express.Request, res: express.Response) => {
 
 
 router.delete('/:id', async (req: express.Request, res: express.Response) => {
-    const id = req.params.id;
+    const id = new mongoose.Types.ObjectId(req.params.id);
     let error = undefined;
     let data = {};
     try{
-        const deletedUser = await Product.findByIdAndDelete(id, {returnDocument: 'after'});
+        const deletedUser = await User.findByIdAndDelete(id, {returnDocument: 'after'});
         if(deletedUser){
             data = deletedUser;
         }

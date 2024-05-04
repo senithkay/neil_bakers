@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 
 interface IBranch extends Document {
     name: string;
-    branchLocation:string;
+        branchLocation:string;
     stocks: Array<mongoose.Types.ObjectId>;
 }
 
@@ -21,6 +21,7 @@ const branchSchema = new Schema({
     },
     stocks: [{ type: Schema.Types.ObjectId, ref: 'stock' }]
 })
+
 
 const Branch = mongoose.model<IBranch>('branch', branchSchema);
 export default Branch

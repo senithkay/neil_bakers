@@ -23,9 +23,52 @@ router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     let error = undefined;
     let data = [];
     try {
+        const branch = yield Branch_1.default.findById(req.params.id).populate({ path: 'stocks', populate: { path: 'productId', select: 'productName' } });
+        if (branch && branch.stocks) {
+            data = branch.stocks;
+        }
+    }
+    catch (err) {
+        (0, logger_1.logger)(err);
+        error = err;
+    }
+    (0, http_1.sendResponse)(data, res, error);
+}));
+router.get("/:id/:date", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let error = undefined;
+    let data = [];
+    try {
         const branch = yield Branch_1.default.findById(req.params.id).populate('stocks');
         if (branch) {
-            data = branch.stocks;
+            if (req.params.date === null || req.params.date === undefined || req.params.date === ' ') {
+                console.log(true);
+            }
+            if (req.params.date && req.params.date !== '') {
+                data = branch.stocks.filter((stock) => {
+                    stock.populate('productId');
+                    return stock.date === req.params.date;
+                });
+            }
+        }
+    }
+    catch (err) {
+        (0, logger_1.logger)(err);
+        error = err;
+    }
+    (0, http_1.sendResponse)(data, res, error);
+}));
+router.get("/:id/:fromDate/:toDate", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let error = undefined;
+    let data = [];
+    try {
+        const branch = yield Branch_1.default.findById(req.params.id).populate('stocks');
+        if (branch) {
+            if (req.params.date && req.params.date !== '') {
+                data = branch.stocks.filter((stock) => {
+                    stock.populate('productId');
+                    return ((stock.date >= req.params.fromDate && stock.date <= req.params.toDate) || stock.date === req.params.fromDate);
+                });
+            }
         }
     }
     catch (err) {
@@ -39,13 +82,35 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let data = {};
     const session = yield mongoose_1.default.startSession();
     session.startTransaction();
+    let stocks = [];
     try {
-        const branch = yield Branch_1.default.findById(req.body.branchId);
+        const branch = yield Branch_1.default.findById(req.body.branchId).populate('stocks');
         if (!branch) {
             throw new Error('Branch not found');
         }
+        if (branch.stocks !== undefined) {
+            stocks = branch.stocks;
+        }
+        const existingStock = stocks.find((stock) => (stock.productId == req.body.stock.productId && stock.date == req.body.stock.date));
         const newStock = new Stock_1.default(req.body.stock);
-        const insertedStock = yield newStock.save();
+        let insertedStock = {};
+        if (existingStock) {
+            const changes = {
+                date: newStock.date,
+                availableStock: newStock.availableStock,
+                remainingStock: newStock.remainingStock,
+                pricePerUnit: newStock.pricePerUnit
+            };
+            const updatedData = yield Stock_1.default.findByIdAndUpdate(existingStock._id, changes, { new: true });
+            if (updatedData) {
+                insertedStock = updatedData;
+                res.status(200);
+            }
+        }
+        else {
+            insertedStock = yield newStock.save();
+            res.status(201);
+        }
         if (!insertedStock) {
             throw new Error('Stock creation failed');
         }
@@ -53,7 +118,8 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         yield branch.save();
         yield session.commitTransaction();
         yield session.endSession();
-        data = branch;
+        const insertedSchemaObject = new Stock_1.default(insertedStock);
+        data = yield insertedSchemaObject.populate({ path: 'productId', select: 'productName' });
     }
     catch (err) {
         (0, logger_1.logger)(err);

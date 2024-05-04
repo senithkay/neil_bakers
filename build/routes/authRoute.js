@@ -38,7 +38,9 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
             }
             data = { _id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin: user.isSuperAdmin };
             const token = (0, common_1.createToken)(user._id, user.uLocation, user.isSuperAdmin);
-            res.cookie('jwt', token, { httpOnly: true, maxAge: process.env.JWT_MAX_AGE });
+            console.log(data);
+            res.cookie('jwt', token, { httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain: 'localhost' });
+            res.status(200);
             (0, http_1.sendResponse)(data, res, error);
         }
     }
@@ -58,7 +60,7 @@ router.post("/register", (req, res) => __awaiter(void 0, void 0, void 0, functio
         const savedUser = yield user.save();
         const token = (0, common_1.createToken)(savedUser._id, savedUser.uLocation, savedUser.isSuperAdmin);
         res.cookie('jwt', token, {
-            httpOnly: true,
+            // httpOnly: true,
             maxAge: process.env.JWT_MAX_AGE,
         });
         data = { _id: savedUser._id, username: savedUser.username };
@@ -71,5 +73,10 @@ router.post("/register", (req, res) => __awaiter(void 0, void 0, void 0, functio
 }));
 router.post("/logout", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.send('logout');
+}));
+router.get('/logout', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const token = (0, common_1.createFakeToken)();
+    res.cookie('jwt', token, { httpOnly: false, maxAge: 0, domain: 'localhost' });
+    res.send({});
 }));
 exports.default = router;

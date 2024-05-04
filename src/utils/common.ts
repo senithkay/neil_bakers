@@ -6,3 +6,9 @@ export const createToken = (id: Types.ObjectId, uLocation:mongoose.Types.ObjectI
         expiresIn: process.env.JWT_MAX_AGE,
     })
 }
+
+export const createFakeToken = () => {
+    return jwt.sign({}, process.env.JWT_SECRET, {
+        expiresIn: 1,
+    })
+}

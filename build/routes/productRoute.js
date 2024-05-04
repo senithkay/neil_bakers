@@ -16,8 +16,24 @@ const express_1 = __importDefault(require("express"));
 const Product_1 = __importDefault(require("../models/Product"));
 const logger_1 = require("../utils/logger");
 const http_1 = require("../utils/http");
+const multer_1 = __importDefault(require("multer"));
+const Stock_1 = __importDefault(require("../models/Stock"));
 const router = express_1.default.Router();
-router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getFileName = (originalName) => {
+    return Date.now() + '_' + originalName;
+};
+const storage = multer_1.default.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, './src/public/images');
+    },
+    filename(req, file, callback) {
+        callback(null, getFileName(file.originalname));
+    }
+});
+const uploadProductImage = (0, multer_1.default)({ storage });
+router.post('/', uploadProductImage.single('image'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    req.body.image = getFileName((_b = (_a = req.file) === null || _a === void 0 ? void 0 : _a.originalname) !== null && _b !== void 0 ? _b : 'default');
     const product = new Product_1.default(req.body);
     let error = undefined;
     let data = {};
@@ -48,7 +64,9 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     (0, http_1.sendResponse)(data, res, error);
 }));
-router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.put('/:id', uploadProductImage.single('image'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _c, _d;
+    req.body.image = getFileName((_d = (_c = req.file) === null || _c === void 0 ? void 0 : _c.originalname) !== null && _d !== void 0 ? _d : 'default');
     const id = req.params.id;
     const changes = req.body;
     let error = undefined;
@@ -71,6 +89,7 @@ router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     let data = {};
     try {
         const deletedProduct = yield Product_1.default.findByIdAndDelete(id, { returnDocument: 'after' });
+        const stocks = yield Stock_1.default.deleteMany({ productId: id });
         if (deletedProduct) {
             data = deletedProduct;
         }

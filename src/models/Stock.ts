@@ -12,7 +12,7 @@ export interface IStock extends Document {
 const stockSchema = new Schema({
     productId: {
         type: Schema.Types.ObjectId,
-        unique: [true, 'A stock related to this product is already exists'],
+        ref : 'Product',
         required: [true, 'Product is required for a stock'],
     },
     date: {
