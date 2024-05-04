@@ -19,6 +19,8 @@ const logger_1 = require("../utils/logger");
 const common_1 = require("../utils/common");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const constants_1 = require("../utils/constants");
+const node_crypto_1 = __importDefault(require("node:crypto"));
+const nodemailer_1 = __importDefault(require("nodemailer"));
 const router = express.Router();
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -78,5 +80,102 @@ router.get('/logout', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     const token = (0, common_1.createFakeToken)();
     res.cookie('jwt', token, { httpOnly: false, maxAge: 0, domain: 'localhost' });
     res.send({});
+}));
+router.get('/reset-password/:id', (req, res) => {
+    const id = req.params.id;
+    const algorithm = 'aes-256-cbc';
+    const key = Buffer.from(process.env.MAIL_ENCRYPTION_KEY, 'hex');
+    const iv = Buffer.from(process.env.MAIL_ENCRYPTION_IV, 'hex');
+    const decipher = node_crypto_1.default.createDecipheriv(algorithm, Buffer.from(key), iv);
+    let decrypted = decipher.update(id, 'hex', 'utf-8');
+    decrypted += decipher.final('utf-8');
+    const decryptedData = JSON.parse(decrypted);
+    const date = new Date();
+    const initiatedTime = new Date(decryptedData.time);
+    const currentTime = new Date();
+    const timeDif = currentTime.getTime() - initiatedTime.getTime();
+    if (timeDif > 300000) {
+        (0, http_1.sendResponse)({}, res, 'Link expired');
+    }
+    res.redirect('http://localhost:5173/reset-password');
+});
+router.post('/pwd-reset', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body.password);
+    let data = {};
+    let error = undefined;
+    try {
+        const salt = yield bcrypt_1.default.genSalt(10);
+        const hashedPassword = yield bcrypt_1.default.hash(req.body.password, salt);
+        data = yield User_1.default.findOneAndUpdate({ email: req.body.email }, { password: hashedPassword }, { new: true });
+    }
+    catch (err) {
+        (0, logger_1.logger)(err);
+        error = err;
+    }
+    (0, http_1.sendResponse)(data, res, error);
+}));
+router.get('/sendmail/:email', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const email = req.params.email;
+    const user = yield User_1.default.findOne({ email });
+    if (!user) {
+        (0, http_1.sendResponse)({}, res, 'Incorrect email');
+        return;
+    }
+    const date = new Date();
+    const plaintext = {
+        id: user._id,
+        time: new Date(),
+    };
+    const algorithm = 'aes-256-cbc';
+    const key = Buffer.from(process.env.MAIL_ENCRYPTION_KEY, 'hex');
+    const iv = Buffer.from(process.env.MAIL_ENCRYPTION_IV, 'hex');
+    const cipher = node_crypto_1.default.createCipheriv(algorithm, Buffer.from(key), iv);
+    let encrypted = cipher.update(JSON.stringify(plaintext), 'utf-8', 'hex');
+    encrypted += cipher.final('hex');
+    const resetPasswordUrl = `http://localhost:3000/auth/reset-password/${encrypted}`;
+    const transporter = nodemailer_1.default.createTransport({
+        service: "gmail",
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+            user: "tivitytest101@gmail.com",
+            pass: "kdbf rkxp ratz sspu",
+        },
+    });
+    const info = yield transporter.sendMail({
+        from: 'tivitytest101@gmail.com',
+        to: email,
+        subject: "Password Reset Request",
+        text: '',
+        html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset Request</title>
+</head>
+<body>
+    <p>Dear Admin,</p>
+
+
+    <p>We have received a request to reset your password for <strong>Your Neil's Bakery Admin Account</strong>.</p>
+
+    <p>To proceed with the password reset, please click on the following link:</p>
+
+    <p><a href="${resetPasswordUrl}">Reset Password</a></p>
+
+    <p>If you did not request this password reset or believe this request to be in error, please disregard this email.</p>
+
+    <p>Please note that the link above will expire in 10 minutes, so be sure to complete the password reset process promptly.</p>
+
+    <p>Thank you.</p>
+
+    <p>Best regards,<br>
+    Super Admin<br>
+</body>
+</html>`,
+    });
+    res.redirect('http://localhost:5173/');
 }));
 exports.default = router;

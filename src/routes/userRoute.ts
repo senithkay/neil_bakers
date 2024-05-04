@@ -5,23 +5,42 @@ import User from "../models/User";
 import {createToken} from "../utils/common";
 import Product from "../models/Product";
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import Branch from "../models/Branch";
 
 const router = express.Router();
 
 router.get("/", async (req: express.Request, res: express.Response) => {
     let error = undefined;
-    let data = {}
+    let data:any = []
     try{
-        const users = await User.find().populate('uLocation');
-        if (users){
-            data = users;
+        const cookies = req.cookies??{};
+        const token = cookies.jwt;
+        if (token){
+            jwt.verify(token, process.env.JWT_SECRET, async (err:any, decoded:any) => {
+                console.log(decoded.id)
+                if (decoded.isSuperAdmin){
+                    const users = await User.find({_id: { $ne: decoded.id } }).populate('uLocation');
+                    if (users){
+                        data = users;
+                    }
+                    sendResponse(data, res, undefined);
+                }
+                else{
+                    data = []
+                    sendResponse(data, res, undefined);
+                }
+            })
+            console.log(data)
+        }
+        else{
+            sendResponse(data, res, error);
         }
     }
     catch (err){
         logger(err);
         error = err
     }
-    sendResponse(data, res, error);
 })
 
 router.post("/", async (req: express.Request, res: express.Response) => {

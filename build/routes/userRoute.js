@@ -18,21 +18,40 @@ const http_1 = require("../utils/http");
 const User_1 = __importDefault(require("../models/User"));
 const Product_1 = __importDefault(require("../models/Product"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const router = express_1.default.Router();
 router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     let error = undefined;
-    let data = {};
+    let data = [];
     try {
-        const users = yield User_1.default.find().populate('uLocation');
-        if (users) {
-            data = users;
+        const cookies = (_a = req.cookies) !== null && _a !== void 0 ? _a : {};
+        const token = cookies.jwt;
+        if (token) {
+            jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
+                console.log(decoded.id);
+                if (decoded.isSuperAdmin) {
+                    const users = yield User_1.default.find({ _id: { $ne: decoded.id } }).populate('uLocation');
+                    if (users) {
+                        data = users;
+                    }
+                    (0, http_1.sendResponse)(data, res, undefined);
+                }
+                else {
+                    data = [];
+                    (0, http_1.sendResponse)(data, res, undefined);
+                }
+            }));
+            console.log(data);
+        }
+        else {
+            (0, http_1.sendResponse)(data, res, error);
         }
     }
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
     }
-    (0, http_1.sendResponse)(data, res, error);
 }));
 router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = new User_1.default({

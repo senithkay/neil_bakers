@@ -5,6 +5,8 @@ import {logger} from "../utils/logger";
 import {createFakeToken, createToken} from "../utils/common";
 import bcrypt from "bcrypt";
 import {ErrorMessages} from "../utils/constants";
+import crypto from "node:crypto";
+import nodemailer from "nodemailer";
 
 const router = express.Router();
 
@@ -74,5 +76,110 @@ router.get('/logout', async (req: express.Request, res: express.Response) => {
     res.cookie('jwt', token, {httpOnly: false, maxAge: 0, domain:'localhost'});
     res.send({});
 })
+
+router.get('/reset-password/:id', (req, res) => {
+    const id = req.params.id;
+    const algorithm = 'aes-256-cbc';
+    const key = Buffer.from(process.env.MAIL_ENCRYPTION_KEY, 'hex');
+    const iv = Buffer.from(process.env.MAIL_ENCRYPTION_IV, 'hex');
+    const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), iv);
+    let decrypted = decipher.update(id, 'hex', 'utf-8');
+    decrypted += decipher.final('utf-8');
+    const decryptedData = JSON.parse(decrypted);
+    const date = new Date();
+    const initiatedTime  =  new Date(decryptedData.time)
+    const currentTime  =  new Date()
+    const timeDif = currentTime.getTime() - initiatedTime.getTime();
+    if (timeDif > 300000){
+        sendResponse({}, res, 'Link expired')
+    }
+    res.redirect('http://localhost:5173/reset-password');
+})
+
+router.post('/pwd-reset', async (req, res) => {
+    console.log(req.body.password)
+    let data: any = {}
+    let error = undefined;
+    try {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(req.body.password, salt);
+        data = await User.findOneAndUpdate({email: req.body.email}, {password: hashedPassword}, {new: true});
+    } catch (err) {
+        logger(err)
+        error = err
+    }
+    sendResponse(data, res, error)
+})
+
+router.get('/sendmail/:email', async (req: express.Request, res: express.Response) => {
+    const email = req.params.email;
+    const user  = await User.findOne({ email });
+    if (!user){
+        sendResponse({}, res, 'Incorrect email');
+        return
+    }
+
+    const date = new Date();
+    const plaintext = {
+        id: user._id,
+        time: new Date(),
+    };
+    const algorithm = 'aes-256-cbc';
+    const key = Buffer.from(process.env.MAIL_ENCRYPTION_KEY, 'hex');
+    const iv = Buffer.from(process.env.MAIL_ENCRYPTION_IV, 'hex');
+
+
+    const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+    let encrypted = cipher.update(JSON.stringify(plaintext), 'utf-8', 'hex');
+    encrypted += cipher.final('hex');
+    const resetPasswordUrl =`http://localhost:3000/auth/reset-password/${encrypted}`
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        host:'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+            user: "tivitytest101@gmail.com",
+            pass: "kdbf rkxp ratz sspu",
+        },
+    });
+
+    const info = await transporter.sendMail({
+        from: 'tivitytest101@gmail.com',
+        to: email,
+        subject: "Password Reset Request",
+        text: '',
+        html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset Request</title>
+</head>
+<body>
+    <p>Dear Admin,</p>
+
+
+    <p>We have received a request to reset your password for <strong>Your Neil's Bakery Admin Account</strong>.</p>
+
+    <p>To proceed with the password reset, please click on the following link:</p>
+
+    <p><a href="${resetPasswordUrl}">Reset Password</a></p>
+
+    <p>If you did not request this password reset or believe this request to be in error, please disregard this email.</p>
+
+    <p>Please note that the link above will expire in 10 minutes, so be sure to complete the password reset process promptly.</p>
+
+    <p>Thank you.</p>
+
+    <p>Best regards,<br>
+    Super Admin<br>
+</body>
+</html>`,
+    });
+
+    res.redirect('http://localhost:5173/');
+})
+
 
 export default router;
