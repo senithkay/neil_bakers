@@ -83,7 +83,6 @@ router.delete('/:id', async (req: express.Request, res: express.Response) => {
     try{
         const deletedProduct = await Product.findByIdAndDelete(id, {returnDocument: 'after'});
         const stocks = await Stock.deleteMany({productId:id});
-
         if(deletedProduct){
             data = deletedProduct;
         }
