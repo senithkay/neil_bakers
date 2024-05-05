@@ -66,12 +66,12 @@ router.get('/:email', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         port: 587,
         secure: false,
         auth: {
-            user: "tivitytest101@gmail.com",
-            pass: "kdbf rkxp ratz sspu",
+            user: process.env.APPLICATION_EMAIL_USER,
+            pass: process.env.APPLICATION_EMAIL_PASSKEY,
         },
     });
     const info = yield transporter.sendMail({
-        from: 'tivitytest101@gmail.com',
+        from: process.env.APPLICATION_EMAIL_USER,
         to: email,
         subject: "Password Reset Request",
         text: '',

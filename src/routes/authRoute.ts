@@ -25,7 +25,7 @@ router.post("/login", async (req, res) => {
            if (!isAuth){
                error = ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD
            }
-           data = {_id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin:user.isSuperAdmin}
+           data = {_id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin:user.isSuperAdmin, email: user.email}
            const token = createToken(user._id, user.uLocation, user.isSuperAdmin);
            console.log(data);
 
@@ -140,8 +140,8 @@ router.get('/sendmail/:email', async (req: express.Request, res: express.Respons
         port: 587,
         secure: false,
         auth: {
-            user: "tivitytest101@gmail.com",
-            pass: "kdbf rkxp ratz sspu",
+            user: process.env.APPLICATION_EMAIL_USER,
+            pass: process.env.APPLICATION_EMAIL_PASSKEY,
         },
     });
 

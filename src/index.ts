@@ -1,7 +1,5 @@
 import express from 'express'
 import authRoute from "./routes/authRoute";
-import connectDB from "./database/connection";
-import dotenv from "dotenv";
 import authorize from "./middlewares/authMiddleware";
 import cookieParser from 'cookie-parser'
 import productRoutes from "./routes/productRoute";
@@ -14,14 +12,18 @@ import stockReportRoute from "./routes/stockReportRoute";
 import cors from 'cors'
 import temporaryRoute from "./routes/temporaryRoute";
 import dashboardRoute from "./routes/dashboardRoute";
+import {startup} from "./utils/startup";
+import chalk from "chalk";
 
+
+startup()
 const app = express();
+
 app.use(cors({
-    origin: true, // Allow requests from this origin
-    credentials: true, // Allow cookies to be sent with requests
+    origin: true,
+    credentials: true,
 }))
 app.use(cookieParser());
-dotenv.config()
 app.use(express.json({ limit: '25mb' }));
 app.use(authorize);
 app.use(express.static('src/public/'))
@@ -37,9 +39,8 @@ app.use('/report', stockReportRoute);
 app.use('/temporary', temporaryRoute);
 app.use('/dashboard', dashboardRoute);
 
-connectDB().then(()=>console.log("Database connected successfully.")).catch((err)=>console.log(err));
 app.listen(process.env.PORT || 8080,
     () => {
-        console.log(`Server started on f http://localhost:${process.env.PORT}`);
+        console.log(`[INFO] Server started on http://localhost:${process.env.PORT}`);
     }
 );

@@ -37,7 +37,7 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
             if (!isAuth) {
                 error = constants_1.ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD;
             }
-            data = { _id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin: user.isSuperAdmin };
+            data = { _id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin: user.isSuperAdmin, email: user.email };
             const token = (0, common_1.createToken)(user._id, user.uLocation, user.isSuperAdmin);
             console.log(data);
             res.cookie('jwt', token, { httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain: process.env.CLIENT_DOMAIN });
@@ -140,8 +140,8 @@ router.get('/sendmail/:email', (req, res) => __awaiter(void 0, void 0, void 0, f
         port: 587,
         secure: false,
         auth: {
-            user: "tivitytest101@gmail.com",
-            pass: "kdbf rkxp ratz sspu",
+            user: process.env.APPLICATION_EMAIL_USER,
+            pass: process.env.APPLICATION_EMAIL_PASSKEY,
         },
     });
     const info = yield transporter.sendMail({

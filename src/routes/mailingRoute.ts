@@ -34,13 +34,13 @@ router.get('/:email', async (req: express.Request, res: express.Response) => {
         port: 587,
         secure: false,
         auth: {
-            user: "tivitytest101@gmail.com",
-            pass: "kdbf rkxp ratz sspu",
+            user: process.env.APPLICATION_EMAIL_USER,
+            pass: process.env.APPLICATION_EMAIL_PASSKEY,
         },
     });
 
     const info = await transporter.sendMail({
-        from: 'tivitytest101@gmail.com',
+        from: process.env.APPLICATION_EMAIL_USER,
         to: email,
         subject: "Password Reset Request",
         text: '',

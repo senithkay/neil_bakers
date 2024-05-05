@@ -58,7 +58,7 @@ const userSchema = new Schema({
     uLocation: {
         type: Schema.Types.ObjectId,
         ref: 'branch',
-        required: [true, "Location is required"],
+        // required: [true, "Location is required"],
         // unique: [true, "The location has to be unique"],
     },
     isSuperAdmin: {
