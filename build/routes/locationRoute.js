@@ -20,6 +20,7 @@ const router = express_1.default.Router();
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let error = undefined;
     let data = {};
+    let responseStatus = 200;
     try {
         const locations = yield Branch_1.default.distinct('branchLocation');
         if (locations) {
@@ -29,7 +30,8 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 exports.default = router;

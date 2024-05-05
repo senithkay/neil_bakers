@@ -1,4 +1,4 @@
-import express from 'express'
+import express, {response} from 'express'
 import {logger} from "../utils/logger";
 import Branch from "../models/Branch";
 import {sendResponse} from "../utils/http";
@@ -10,16 +10,15 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
     let error = undefined;
     let date = req.params.date;
     if(req.params.date === undefined || req.params.date === null){}
+    let responseStatus = 200
     try{
         const branch = await Branch.findById(req.params.id).populate({path: 'stocks', populate: { path: 'productId', select: 'productName' }} );
-
         if (branch){
             const reportData:StockReport[] = []
             const stocks = branch.stocks
             stocks.forEach((stock:any) => {
                 const reportRow = new StockReportRow()
                 if (stock.date === date){
-                    //TODo change the business logic.
                     reportRow.productName = stock.productId.productName;
                     reportRow.pricePerUnit = stock.pricePerUnit;
                     reportRow.soldStock = stock.availableStock - stock.remainingStock;
@@ -37,17 +36,19 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
                     reportRow.totalSales = 0;
                     reportData.push(reportRow)
                 }
+
             })
             data=reportData;
         }
         else{
             error = 'Invalid branch ID'
+            responseStatus = 400
         }
     }catch(err){
         logger(err);
         error = err;
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 })
 
 router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: express.Response) => {
@@ -56,8 +57,7 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
     let fromDate = req.params.fromDate;
     let toDate = req.params.toDate;
     if(req.params.date === undefined || req.params.date === null){}
-    console.log(fromDate)
-    console.log(toDate)
+    let responseStatus = 200
     try{
         const branch = await Branch.findById(req.params.id).populate({path: 'stocks', populate: { path: 'productId', select: 'productName' }} );
         console.log(branch);
@@ -90,12 +90,14 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
         }
         else{
             error = 'Invalid branch ID'
+            responseStatus = 400
         }
     }catch(err){
         logger(err);
         error = err;
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 })
 
 router.get('/monthly/:id/:date', async(req: express.Request, res: express.Response) => {
@@ -104,8 +106,9 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
     let date = req.params.date;
     let fromDate = date + '-01'
     const monthNumber = parseInt(date.split('-')[1])
+    let responseStatus = 200
     if ( monthNumber< 1 || monthNumber > 12) {
-        throw new Error('Invalid date.');
+        sendResponse(data, res, 'Invalid date',  400)
     }
     const dateObject = new Date(new Date().getFullYear(), monthNumber, 0);
     const numberOfDays = dateObject.getDate()
@@ -119,7 +122,6 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
             stocks.forEach((stock:any) => {
                 const reportRow = new StockReportRow()
                 if (stock.date >= fromDate && stock.date <= toDate){
-                    //TODo change the business logic
                     reportRow.productName = stock.productId.productName;
                     reportRow.pricePerUnit = stock.pricePerUnit;
                     reportRow.soldStock = stock.availableStock - stock.remainingStock;
@@ -142,12 +144,14 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
         }
         else{
             error = 'Invalid branch ID'
+            responseStatus = 400
         }
     }catch(err){
         logger(err);
         error = err;
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 })
 
 interface StockReport{

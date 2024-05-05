@@ -11,12 +11,12 @@ import nodemailer from "nodemailer";
 const router = express.Router();
 
 router.post("/login", async (req, res) => {
-   try{
+   let responseCode = 401
+    try{
        let error = undefined
        const user = await User.findOne({email: req.body.email})
        if (!user){
-           res.status(401)
-            sendResponse({}, res, ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD);
+            sendResponse({}, res, ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD, 401);
             return
        }
        else{
@@ -24,15 +24,14 @@ router.post("/login", async (req, res) => {
            let data:any = {}
            if (!isAuth){
                error = ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD
-               res.status(401)
            }
            data = {_id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin:user.isSuperAdmin}
            const token = createToken(user._id, user.uLocation, user.isSuperAdmin);
            console.log(data);
 
-           res.cookie('jwt', token, {httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain:'localhost'});
-           res.status(200);
-           sendResponse(data, res, error);
+           res.cookie('jwt', token, {httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain:process.env.CLIENT_DOMAIN});
+           responseCode = 200
+           sendResponse(data, res, error, responseCode);
        }
    }
    catch (err){
@@ -91,15 +90,16 @@ router.get('/reset-password/:id', (req, res) => {
     const currentTime  =  new Date()
     const timeDif = currentTime.getTime() - initiatedTime.getTime();
     if (timeDif > 300000){
-        sendResponse({}, res, 'Link expired')
+        sendResponse({}, res, 'Link expired',400)
     }
-    res.redirect('http://localhost:5173/reset-password');
+    res.redirect(`${process.env.PROTOCOL}://${process.env.CLIENT_DOMAIN}:${process.env.CLIENT_PORT}/reset-password`);
 })
 
 router.post('/pwd-reset', async (req, res) => {
     console.log(req.body.password)
     let data: any = {}
     let error = undefined;
+    let responseStatus = 200
     try {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -107,15 +107,16 @@ router.post('/pwd-reset', async (req, res) => {
     } catch (err) {
         logger(err)
         error = err
+        responseStatus = 500
     }
-    sendResponse(data, res, error)
+    sendResponse(data, res, error,  responseStatus)
 })
 
 router.get('/sendmail/:email', async (req: express.Request, res: express.Response) => {
     const email = req.params.email;
     const user  = await User.findOne({ email });
     if (!user){
-        sendResponse({}, res, 'Incorrect email');
+        sendResponse({}, res, 'Incorrect email', 400);
         return
     }
 

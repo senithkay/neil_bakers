@@ -11,8 +11,7 @@ import Branch from "../models/Branch";
 const router = express.Router();
 
 router.get("/", async (req: express.Request, res: express.Response) => {
-    let error = undefined;
-    let data:any = []
+    let data:any = [];
     try{
         const cookies = req.cookies??{};
         const token = cookies.jwt;
@@ -34,12 +33,11 @@ router.get("/", async (req: express.Request, res: express.Response) => {
             console.log(data)
         }
         else{
-            sendResponse(data, res, error);
+            sendResponse(data, res, 'User not found', 400);
         }
     }
     catch (err){
         logger(err);
-        error = err
     }
 })
 
@@ -51,6 +49,7 @@ router.post("/", async (req: express.Request, res: express.Response) => {
         uLocation: req.body.location,
         isSuperAdmin:false
     })
+    let responseStatus = 200
     let error = undefined;
     let data:any = {}
     try{
@@ -62,8 +61,9 @@ router.post("/", async (req: express.Request, res: express.Response) => {
     catch(err){
         logger(err)
         error = (err as any)
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 })
 
 router.put('/:id', async (req: express.Request, res: express.Response) => {
@@ -71,6 +71,7 @@ router.put('/:id', async (req: express.Request, res: express.Response) => {
     const changes = req.body;
     let error = undefined;
     let data = {};
+    let responseStatus = 200
     try {
         const updatedUser = await Product.findByIdAndUpdate(id, changes, {new: true});
         if(updatedUser){
@@ -79,8 +80,9 @@ router.put('/:id', async (req: express.Request, res: express.Response) => {
     }catch (err){
         logger(err);
         error = err
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 })
 
 
@@ -88,6 +90,7 @@ router.delete('/:id', async (req: express.Request, res: express.Response) => {
     const id = new mongoose.Types.ObjectId(req.params.id);
     let error = undefined;
     let data = {};
+    let responseStatus = 200
     try{
         const deletedUser = await User.findByIdAndDelete(id, {returnDocument: 'after'});
         if(deletedUser){
@@ -97,8 +100,9 @@ router.delete('/:id', async (req: express.Request, res: express.Response) => {
     catch(err){
         logger(err);
         error = err
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 })
 
 export default router;

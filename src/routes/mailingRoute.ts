@@ -10,7 +10,7 @@ router.get('/:email', async (req: express.Request, res: express.Response) => {
     const email = req.params.email;
     const user  = await User.findOne({ email });
     if (!user){
-        sendResponse({}, res, 'Incorrect email');
+        sendResponse({}, res, 'Incorrect email', 401);
         return
     }
 

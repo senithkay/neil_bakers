@@ -87,6 +87,7 @@ router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     const id = req.params.id;
     let error = undefined;
     let data = {};
+    let responseStatus = 200;
     try {
         const deletedProduct = yield Product_1.default.findByIdAndDelete(id, { returnDocument: 'after' });
         const stocks = yield Stock_1.default.deleteMany({ productId: id });
@@ -97,12 +98,14 @@ router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 router.get('/price/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let data = {};
     let error = undefined;
+    let responseStatus = 200;
     try {
         const product = yield Product_1.default.findById(req.params.id);
         if (product) {
@@ -112,7 +115,8 @@ router.get('/price/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 exports.default = router;

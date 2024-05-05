@@ -23,12 +23,12 @@ const node_crypto_1 = __importDefault(require("node:crypto"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const router = express.Router();
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let responseCode = 401;
     try {
         let error = undefined;
         const user = yield User_1.default.findOne({ email: req.body.email });
         if (!user) {
-            res.status(401);
-            (0, http_1.sendResponse)({}, res, constants_1.ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD);
+            (0, http_1.sendResponse)({}, res, constants_1.ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD, 401);
             return;
         }
         else {
@@ -36,14 +36,13 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
             let data = {};
             if (!isAuth) {
                 error = constants_1.ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD;
-                res.status(401);
             }
             data = { _id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin: user.isSuperAdmin };
             const token = (0, common_1.createToken)(user._id, user.uLocation, user.isSuperAdmin);
             console.log(data);
-            res.cookie('jwt', token, { httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain: 'localhost' });
-            res.status(200);
-            (0, http_1.sendResponse)(data, res, error);
+            res.cookie('jwt', token, { httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain: process.env.CLIENT_DOMAIN });
+            responseCode = 200;
+            (0, http_1.sendResponse)(data, res, error, responseCode);
         }
     }
     catch (err) {
@@ -95,14 +94,15 @@ router.get('/reset-password/:id', (req, res) => {
     const currentTime = new Date();
     const timeDif = currentTime.getTime() - initiatedTime.getTime();
     if (timeDif > 300000) {
-        (0, http_1.sendResponse)({}, res, 'Link expired');
+        (0, http_1.sendResponse)({}, res, 'Link expired', 400);
     }
-    res.redirect('http://localhost:5173/reset-password');
+    res.redirect(`${process.env.PROTOCOL}://${process.env.CLIENT_DOMAIN}:${process.env.CLIENT_PORT}/reset-password`);
 });
 router.post('/pwd-reset', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(req.body.password);
     let data = {};
     let error = undefined;
+    let responseStatus = 200;
     try {
         const salt = yield bcrypt_1.default.genSalt(10);
         const hashedPassword = yield bcrypt_1.default.hash(req.body.password, salt);
@@ -111,14 +111,15 @@ router.post('/pwd-reset', (req, res) => __awaiter(void 0, void 0, void 0, functi
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 router.get('/sendmail/:email', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const email = req.params.email;
     const user = yield User_1.default.findOne({ email });
     if (!user) {
-        (0, http_1.sendResponse)({}, res, 'Incorrect email');
+        (0, http_1.sendResponse)({}, res, 'Incorrect email', 400);
         return;
     }
     const date = new Date();

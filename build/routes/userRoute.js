@@ -22,7 +22,6 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const router = express_1.default.Router();
 router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    let error = undefined;
     let data = [];
     try {
         const cookies = (_a = req.cookies) !== null && _a !== void 0 ? _a : {};
@@ -45,12 +44,11 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             console.log(data);
         }
         else {
-            (0, http_1.sendResponse)(data, res, error);
+            (0, http_1.sendResponse)(data, res, 'User not found', 400);
         }
     }
     catch (err) {
         (0, logger_1.logger)(err);
-        error = err;
     }
 }));
 router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -61,6 +59,7 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         uLocation: req.body.location,
         isSuperAdmin: false
     });
+    let responseStatus = 200;
     let error = undefined;
     let data = {};
     try {
@@ -72,14 +71,16 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const changes = req.body;
     let error = undefined;
     let data = {};
+    let responseStatus = 200;
     try {
         const updatedUser = yield Product_1.default.findByIdAndUpdate(id, changes, { new: true });
         if (updatedUser) {
@@ -89,13 +90,15 @@ router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = new mongoose_1.default.Types.ObjectId(req.params.id);
     let error = undefined;
     let data = {};
+    let responseStatus = 200;
     try {
         const deletedUser = yield User_1.default.findByIdAndDelete(id, { returnDocument: 'after' });
         if (deletedUser) {
@@ -105,7 +108,8 @@ router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 exports.default = router;

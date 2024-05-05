@@ -35,7 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = __importStar(require("mongoose"));
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     mongoose.set('strictQuery', false);
-    const mongoDb = 'mongodb+srv://senithkarunarathneu:passwordekakne@nc.mdruunp.mongodb.net/?retryWrites=true&w=majority&appName=nc';
+    const mongoDb = process.env.DATABASE_CONNECTION;
     try {
         return yield mongoose.connect(mongoDb);
     }

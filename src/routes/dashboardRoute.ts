@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("/monthly-stock/:id", async(req: express.Request, res: express.Response) => {
     let error = undefined;
     let data:any = [];
+    let responseStatus = 200
     try{
         const branch = await Branch.findById(req.params.id).populate('stocks');
         if (branch){
@@ -40,20 +41,21 @@ router.get("/monthly-stock/:id", async(req: express.Request, res: express.Respon
     catch(err){
         logger(err)
         error = err
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 })
 
 router.get('/daily-sales/:id/:date', async (req: express.Request, res: express.Response) => {
     let data = {};
     let error = undefined
     let date = req.params.date
+    let responseStatus = 200
     try{
         const branch = await Branch.findById(req.params.id).populate('stocks');
         if (branch){
             const stocks = branch.stocks
             const stocksOfTheDay = stocks.filter((stock:any) => stock.date === date);
-            console.log(stocksOfTheDay)
             const soldQty:any = stocksOfTheDay.reduce((accumulator, currentValue:any) => {
                 return accumulator + (currentValue.availableStock - currentValue.remainingStock);
             }, 0);
@@ -69,8 +71,9 @@ router.get('/daily-sales/:id/:date', async (req: express.Request, res: express.R
     catch (err){
         logger(err);
         error = err
+        responseStatus = 500
     }
-    sendResponse(data,res,error)
+    sendResponse(data, res, error,  responseStatus)
 })
 
 export default router;

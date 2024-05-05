@@ -80,6 +80,7 @@ router.delete('/:id', async (req: express.Request, res: express.Response) => {
     const id = req.params.id;
     let error = undefined;
     let data = {};
+    let responseStatus = 200
     try{
         const deletedProduct = await Product.findByIdAndDelete(id, {returnDocument: 'after'});
         const stocks = await Stock.deleteMany({productId:id});
@@ -90,13 +91,15 @@ router.delete('/:id', async (req: express.Request, res: express.Response) => {
     catch(err){
         logger(err);
         error = err
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 })
 
 router.get('/price/:id', async (req: express.Request, res: express.Response) => {
     let data = {}
     let error = undefined;
+    let responseStatus = 200
     try{
         const product = await Product.findById(req.params.id);
         if (product){
@@ -106,8 +109,9 @@ router.get('/price/:id', async (req: express.Request, res: express.Response) => 
     catch (err){
         logger(err)
         error = err
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 })
 
 export default router;

@@ -5,6 +5,9 @@ declare namespace NodeJS {
         PORT: number;
         MAIL_ENCRYPTION_KEY:string;
         MAIL_ENCRYPTION_IV:string;
-        // Add other environment variables here if needed
+        DATABASE_CONNECTION:string
+        CLIENT_DOMAIN:string;
+        CLIENT_PORT:number
+        PROTOCOL:string
     }
 }

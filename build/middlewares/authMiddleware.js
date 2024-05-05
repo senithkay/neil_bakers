@@ -9,6 +9,7 @@ const constants_1 = require("../utils/constants");
 const whiteList = [
     "/auth/login",
     "/auth/register",
+    "/auth/"
 ];
 const authorize = (req, res, next) => {
     var _a;
@@ -16,21 +17,19 @@ const authorize = (req, res, next) => {
     const token = cookies.jwt;
     const requestedURL = req.originalUrl;
     if (token) {
-        if (whiteList.includes(requestedURL)) {
+        if (requestedURL.includes('auth')) {
             res.cookie('jwt', token, { httpOnly: true, maxAge: 1 });
         }
         jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET, (err, decoded) => {
             if (err && !whiteList.includes(requestedURL)) {
-                res.status(401);
-                (0, http_1.sendResponse)({}, res, constants_1.ErrorMessages.UNAUTHENTICATED_USER);
+                (0, http_1.sendResponse)({}, res, constants_1.ErrorMessages.UNAUTHENTICATED_USER, 401);
             }
             next();
         });
         return;
     }
-    if (!whiteList.includes(requestedURL)) {
-        res.status(401);
-        (0, http_1.sendResponse)({}, res, constants_1.ErrorMessages.UNAUTHENTICATED_USER);
+    if (!requestedURL.includes('auth')) {
+        (0, http_1.sendResponse)({}, res, constants_1.ErrorMessages.UNAUTHENTICATED_USER, 401);
     }
     else {
         next();

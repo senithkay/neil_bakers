@@ -25,7 +25,7 @@ router.get("/user", async  (req: express.Request, res: express.Response) => {
     }catch (err){
         logger(err);
         error = err
-        sendResponse(data, res, error);
+        sendResponse(data, res, error, 500);
     }
 
 })

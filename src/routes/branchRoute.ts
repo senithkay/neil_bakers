@@ -12,30 +12,28 @@ router.get('/', async (req: express.Request, res: express.Response) => {
     try{
         const cookies = req.cookies??{};
         const token = cookies.jwt;
-        console.log(token);
         if (token){
             jwt.verify(token, process.env.JWT_SECRET, async (err:any, decoded:any) => {
 
                 if (decoded.isSuperAdmin){
-                    console.log('a')
                     data = await Branch.find()
                 }
                 else{
                     data.push(await Branch.findOne({_id: decoded.uLocation}))
                 }
-                sendResponse(data, res, undefined);
+                sendResponse(data, res, undefined, 200);
             })
 
         }
         else{
-            sendResponse(data, res, undefined);
+            sendResponse(data, res, 'Unauthorized user', 401);
         }
 
     }
     catch (err){
         logger(err)
         error = err
-        sendResponse(data, res, error);
+        sendResponse(data, res, error, 500);
     }
 
 })
@@ -44,6 +42,7 @@ router.post('/', async (req: express.Request, res: express.Response) => {
     let error = undefined;
     let data = {};
     const branch = new Branch(req.body);
+    let responseStatus = 200
     try{
         const savedBranch = await branch.save();
         if(savedBranch){
@@ -52,8 +51,9 @@ router.post('/', async (req: express.Request, res: express.Response) => {
     }catch (err){
         logger(err)
         error = err;
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 })
 
 export default router;

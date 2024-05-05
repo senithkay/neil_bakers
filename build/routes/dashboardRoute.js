@@ -20,6 +20,7 @@ const router = express_1.default.Router();
 router.get("/monthly-stock/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let error = undefined;
     let data = [];
+    let responseStatus = 200;
     try {
         const branch = yield Branch_1.default.findById(req.params.id).populate('stocks');
         if (branch) {
@@ -51,19 +52,20 @@ router.get("/monthly-stock/:id", (req, res) => __awaiter(void 0, void 0, void 0,
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 router.get('/daily-sales/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let data = {};
     let error = undefined;
     let date = req.params.date;
+    let responseStatus = 200;
     try {
         const branch = yield Branch_1.default.findById(req.params.id).populate('stocks');
         if (branch) {
             const stocks = branch.stocks;
             const stocksOfTheDay = stocks.filter((stock) => stock.date === date);
-            console.log(stocksOfTheDay);
             const soldQty = stocksOfTheDay.reduce((accumulator, currentValue) => {
                 return accumulator + (currentValue.availableStock - currentValue.remainingStock);
             }, 0);
@@ -79,7 +81,8 @@ router.get('/daily-sales/:id/:date', (req, res) => __awaiter(void 0, void 0, voi
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 exports.default = router;

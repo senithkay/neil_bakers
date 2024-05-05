@@ -25,33 +25,32 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const cookies = (_a = req.cookies) !== null && _a !== void 0 ? _a : {};
         const token = cookies.jwt;
-        console.log(token);
         if (token) {
             jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
                 if (decoded.isSuperAdmin) {
-                    console.log('a');
                     data = yield Branch_1.default.find();
                 }
                 else {
                     data.push(yield Branch_1.default.findOne({ _id: decoded.uLocation }));
                 }
-                (0, http_1.sendResponse)(data, res, undefined);
+                (0, http_1.sendResponse)(data, res, undefined, 200);
             }));
         }
         else {
-            (0, http_1.sendResponse)(data, res, undefined);
+            (0, http_1.sendResponse)(data, res, 'Unauthorized user', 401);
         }
     }
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
-        (0, http_1.sendResponse)(data, res, error);
+        (0, http_1.sendResponse)(data, res, error, 500);
     }
 }));
 router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let error = undefined;
     let data = {};
     const branch = new Branch_1.default(req.body);
+    let responseStatus = 200;
     try {
         const savedBranch = yield branch.save();
         if (savedBranch) {
@@ -61,7 +60,8 @@ router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 exports.default = router;

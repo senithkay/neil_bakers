@@ -8,6 +8,7 @@ const router = express.Router()
 router.get('/', async (req: express.Request, res: express.Response) => {
     let error = undefined;
     let data = {}
+    let responseStatus = 200
     try{
         const locations = await Branch.distinct('branchLocation')
         if(locations){
@@ -17,8 +18,9 @@ router.get('/', async (req: express.Request, res: express.Response) => {
     catch (err){
         logger(err);
         error = err
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 
 })
 

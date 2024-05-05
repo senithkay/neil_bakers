@@ -38,7 +38,7 @@ router.get("/user", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
-        (0, http_1.sendResponse)(data, res, error);
+        (0, http_1.sendResponse)(data, res, error, 500);
     }
 }));
 exports.default = router;

@@ -45,7 +45,7 @@ router.get('/:email', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     const email = req.params.email;
     const user = yield User_1.default.findOne({ email });
     if (!user) {
-        (0, http_1.sendResponse)({}, res, 'Incorrect email');
+        (0, http_1.sendResponse)({}, res, 'Incorrect email', 401);
         return;
     }
     const date = new Date();

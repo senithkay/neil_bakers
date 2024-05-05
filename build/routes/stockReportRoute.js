@@ -22,6 +22,7 @@ router.get('/daily/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, f
     let error = undefined;
     let date = req.params.date;
     if (req.params.date === undefined || req.params.date === null) { }
+    let responseStatus = 200;
     try {
         const branch = yield Branch_1.default.findById(req.params.id).populate({ path: 'stocks', populate: { path: 'productId', select: 'productName' } });
         if (branch) {
@@ -30,7 +31,6 @@ router.get('/daily/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, f
             stocks.forEach((stock) => {
                 const reportRow = new StockReportRow();
                 if (stock.date === date) {
-                    //TODo change the business logic.
                     reportRow.productName = stock.productId.productName;
                     reportRow.pricePerUnit = stock.pricePerUnit;
                     reportRow.soldStock = stock.availableStock - stock.remainingStock;
@@ -53,13 +53,14 @@ router.get('/daily/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, f
         }
         else {
             error = 'Invalid branch ID';
+            responseStatus = 400;
         }
     }
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let data = {};
@@ -67,8 +68,7 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
     let fromDate = req.params.fromDate;
     let toDate = req.params.toDate;
     if (req.params.date === undefined || req.params.date === null) { }
-    console.log(fromDate);
-    console.log(toDate);
+    let responseStatus = 200;
     try {
         const branch = yield Branch_1.default.findById(req.params.id).populate({ path: 'stocks', populate: { path: 'productId', select: 'productName' } });
         console.log(branch);
@@ -101,13 +101,15 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
         }
         else {
             error = 'Invalid branch ID';
+            responseStatus = 400;
         }
     }
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let data = {};
@@ -115,8 +117,9 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
     let date = req.params.date;
     let fromDate = date + '-01';
     const monthNumber = parseInt(date.split('-')[1]);
+    let responseStatus = 200;
     if (monthNumber < 1 || monthNumber > 12) {
-        throw new Error('Invalid date.');
+        (0, http_1.sendResponse)(data, res, 'Invalid date', 400);
     }
     const dateObject = new Date(new Date().getFullYear(), monthNumber, 0);
     const numberOfDays = dateObject.getDate();
@@ -130,7 +133,6 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
             stocks.forEach((stock) => {
                 const reportRow = new StockReportRow();
                 if (stock.date >= fromDate && stock.date <= toDate) {
-                    //TODo change the business logic
                     reportRow.productName = stock.productId.productName;
                     reportRow.pricePerUnit = stock.pricePerUnit;
                     reportRow.soldStock = stock.availableStock - stock.remainingStock;
@@ -153,13 +155,15 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
         }
         else {
             error = 'Invalid branch ID';
+            responseStatus = 400;
         }
     }
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 class StockReportRow {
     constructor() {

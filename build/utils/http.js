@@ -1,16 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendResponse = void 0;
-const sendResponse = (payload, res, error) => {
+const sendResponse = (payload, res, error, statusCode) => {
     let description = '';
     let time = Date.now();
-    let status = 0;
+    let status = 0 /* RESPONSE_CODE.ERROR */;
     if (error === undefined) {
         description = 'success';
-        status = 1;
-        //ToDO: add enum for this
+        status = 1 /* RESPONSE_CODE.SUCCESS */;
     }
     else {
+        res.status(500);
         description = error;
     }
     let data = {
@@ -19,6 +19,9 @@ const sendResponse = (payload, res, error) => {
         data: payload,
         time: time,
     };
+    if (statusCode !== undefined) {
+        res.status(statusCode);
+    }
     res.send(data);
 };
 exports.sendResponse = sendResponse;
