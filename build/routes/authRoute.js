@@ -144,7 +144,7 @@ router.get('/sendmail/:email', (req, res) => __awaiter(void 0, void 0, void 0, f
             pass: process.env.APPLICATION_EMAIL_PASSKEY,
         },
     });
-    const info = yield transporter.sendMail({
+    transporter.sendMail({
         from: 'tivitytest101@gmail.com',
         to: email,
         subject: "Password Reset Request",
@@ -176,7 +176,9 @@ router.get('/sendmail/:email', (req, res) => __awaiter(void 0, void 0, void 0, f
     Super Admin<br>
 </body>
 </html>`,
+    }).then((info) => {
+        console.log(info);
+        res.redirect(`${process.env.PROTOCOL}://${process.env.CLIENT_DOMAIN}:${process.env.CLIENT_PORT}/`);
     });
-    res.redirect('http://localhost:5173/');
 }));
 exports.default = router;

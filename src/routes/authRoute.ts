@@ -145,7 +145,7 @@ router.get('/sendmail/:email', async (req: express.Request, res: express.Respons
         },
     });
 
-    const info = await transporter.sendMail({
+    transporter.sendMail({
         from: 'tivitytest101@gmail.com',
         to: email,
         subject: "Password Reset Request",
@@ -177,9 +177,11 @@ router.get('/sendmail/:email', async (req: express.Request, res: express.Respons
     Super Admin<br>
 </body>
 </html>`,
+    }).then((info)=>{
+        console.log(info)
+        res.redirect(`${process.env.PROTOCOL}://${process.env.CLIENT_DOMAIN}:${process.env.CLIENT_PORT}/`);
     });
 
-    res.redirect('http://localhost:5173/');
 })
 
 
