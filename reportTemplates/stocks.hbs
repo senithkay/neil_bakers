@@ -1,8 +1,59 @@
 
+
 <html lang="">
+<head>
+    <meta charset="UTF-8">
+    <title>{{info.title}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        img {
+            width: 30%;
+            height: auto;
+            object-fit: cover;
+        }
+        h1{
+            text-align: center;
+        }
+
+        p{
+            text-align: center;
+        }
+
+        .headerContainer{
+            display: flex;
+            width: 90%;
+            justify-content: center;
+        }
+        
+
+        .textContainer{
+
+        }
+    </style>
 <body>
-    <h1>{{info.title}}</h1>
-    <p>{{info.description}}</p>
+    <div class="headerContainer">
+        <img src="./assets/logo.png">
+        <div class="textContainer">
+            <h1>HEIL BAKERY</h1>
+            <p>11,126, St. Annes's Lane, Katukurunda, Moratuwa</p>
+            <p>3350671 | 0777357080 | 0112657088</p>
+        </div>
+    </div>
+    <hr>  
     <table>
         <tr>
             <th>Product name</th>
