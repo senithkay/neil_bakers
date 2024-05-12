@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
 import {IStock} from "./Stock";
+import express from "express";
+import User from "./User";
+import {logger} from "../utils/logger";
+import {sendResponse} from "../utils/http";
+import router from "../routes/userRoute";
 
 const Schema = mongoose.Schema;
 
@@ -17,11 +22,9 @@ const branchSchema = new Schema({
     },
     branchLocation: {
         type: String,
-        required: [true, 'Location of the branch is mandatory'],
     },
     stocks: [{ type: Schema.Types.ObjectId, ref: 'stock' }]
 })
-
 
 const Branch = mongoose.model<IBranch>('branch', branchSchema);
 export default Branch

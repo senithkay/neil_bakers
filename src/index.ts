@@ -13,7 +13,8 @@ import cors from 'cors'
 import temporaryRoute from "./routes/temporaryRoute";
 import dashboardRoute from "./routes/dashboardRoute";
 import {startup} from "./utils/startup";
-import chalk from "chalk";
+import pdfGeneratorRoute from "./routes/pdfGeneratorRoute";
+
 
 
 startup()
@@ -38,9 +39,12 @@ app.use('/stock', stockRoute);
 app.use('/report', stockReportRoute);
 app.use('/temporary', temporaryRoute);
 app.use('/dashboard', dashboardRoute);
+app.use('/pdfGenerator', pdfGeneratorRoute);
+
 
 app.listen(process.env.PORT || 8080,
     () => {
         console.log(`[INFO] Server started on http://localhost:${process.env.PORT}`);
     }
 );
+

@@ -1,0 +1,27 @@
+
+<html lang="">
+<body>
+    <h1>{{info.title}}</h1>
+    <p>{{info.description}}</p>
+    <table>
+        <tr>
+            <th>Product name</th>
+            <th>Opening Stock Qty</th>
+            <th>Sold Stock Qty</th>
+            <th>Balance Qty</th>
+            <th>Price Per Unit</th>
+            <th>Total sales</th>
+        </tr>
+        {{#each stocks as |stock|}}
+            <tr>
+                <td>{{stock.productName}}</td>
+                <td>{{stock.openingStock}}</td>
+                <td>{{stock.soldStock}}</td>
+                <td>{{stock.balanceStock}}</td>
+                <td>{{stock.pricePerUnit}}</td>
+                <td>{{stock.totalSales}}</td>
+            </tr>
+        {{/each}}
+    </table>
+</body>
+</html>

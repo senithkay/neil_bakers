@@ -17,6 +17,7 @@ const Branch_1 = __importDefault(require("../models/Branch"));
 const http_1 = require("../utils/http");
 const logger_1 = require("../utils/logger");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const router = express_1.default.Router();
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -55,6 +56,24 @@ router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const savedBranch = yield branch.save();
         if (savedBranch) {
             data = savedBranch;
+        }
+    }
+    catch (err) {
+        (0, logger_1.logger)(err);
+        error = err;
+        responseStatus = 500;
+    }
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
+}));
+router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = new mongoose_1.default.Types.ObjectId(req.params.id);
+    let error = undefined;
+    let data = {};
+    let responseStatus = 200;
+    try {
+        const deletedBranch = yield Branch_1.default.findByIdAndDelete(id, { returnDocument: 'after' });
+        if (deletedBranch) {
+            data = deletedBranch;
         }
     }
     catch (err) {

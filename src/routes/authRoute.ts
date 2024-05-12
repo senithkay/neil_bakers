@@ -2,11 +2,13 @@ import express = require('express');
 import User from "../models/User";
 import {sendResponse} from "../utils/http";
 import {logger} from "../utils/logger";
-import {createFakeToken, createToken} from "../utils/common";
+import {createFakeToken, createToken} from "../utils/auth";
 import bcrypt from "bcrypt";
 import {ErrorMessages} from "../utils/constants";
 import crypto from "node:crypto";
 import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken";
+import Branch from "../models/Branch";
 
 const router = express.Router();
 
@@ -24,13 +26,15 @@ router.post("/login", async (req, res) => {
            let data:any = {}
            if (!isAuth){
                error = ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD
+               responseCode = 401
            }
-           data = {_id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin:user.isSuperAdmin, email: user.email}
-           const token = createToken(user._id, user.uLocation, user.isSuperAdmin);
-           console.log(data);
+           else{
+               data = {_id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin:user.isSuperAdmin, email: user.email}
+               const token = createToken(user._id, user.uLocation, user.isSuperAdmin);
 
-           res.cookie('jwt', token, {httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain:process.env.CLIENT_DOMAIN});
-           responseCode = 200
+               res.cookie('jwt', token, {httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain:process.env.CLIENT_DOMAIN});
+               responseCode = 200
+           }
            sendResponse(data, res, error, responseCode);
        }
    }
@@ -96,7 +100,6 @@ router.get('/reset-password/:id', (req, res) => {
 })
 
 router.post('/pwd-reset', async (req, res) => {
-    console.log(req.body.password)
     let data: any = {}
     let error = undefined;
     let responseStatus = 200
@@ -110,6 +113,58 @@ router.post('/pwd-reset', async (req, res) => {
         responseStatus = 500
     }
     sendResponse(data, res, error,  responseStatus)
+})
+
+router.post('/change-password', async (req, res) => {
+    let data: any = {}
+    let error = undefined;
+    let responseStatus = 200
+    try {
+        const cookies = req.cookies??{};
+        const token = cookies.jwt;
+        if (token){
+            jwt.verify(token, process.env.JWT_SECRET, async (err:any, decoded:any) => {
+                let foundUser = await User.findById(decoded.id)
+                if(foundUser === undefined || foundUser === null){
+                    error = "User not found";
+                    responseStatus = 401;
+                    sendResponse(data, res, error,  responseStatus)
+                }
+                else{
+                    const isAuth = await bcrypt.compare(req.body.oldPassword, foundUser.password)
+                    if (isAuth){
+                        const salt = await bcrypt.genSalt(10);
+                        const hashedPassword = await bcrypt.hash(req.body.newPassword, salt);
+                        const user = await User.findOneAndUpdate({_id:decoded.id}, {password: hashedPassword})
+                        if(user === undefined || user === null){
+                            error = "Could not change the password";
+                            responseStatus = 500
+                            sendResponse(data, res, error,  responseStatus)
+                        }
+                        else{
+                            data = {_id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin:user.isSuperAdmin, email: user.email}
+                            sendResponse(data, res, undefined,  responseStatus)
+                        }
+                    }
+                    else{
+                        error = "Current password is incorrect"
+                        responseStatus = 500
+                        sendResponse(data, res, error,  responseStatus)
+                    }
+                }
+            })
+        }
+        else{
+            error = "Unauthorized user"
+            responseStatus = 401
+            sendResponse(data, res, error,  responseStatus)
+        }
+    } catch (err) {
+        logger(err)
+        error = err
+        responseStatus = 500
+        sendResponse(data, res, error,  responseStatus)
+    }
 })
 
 router.get('/sendmail/:email', async (req: express.Request, res: express.Response) => {

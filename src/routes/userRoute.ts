@@ -2,7 +2,7 @@ import express from "express";
 import {logger} from "../utils/logger";
 import {sendResponse} from "../utils/http";
 import User from "../models/User";
-import {createToken} from "../utils/common";
+import {createToken} from "../utils/auth";
 import Product from "../models/Product";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";

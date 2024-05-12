@@ -3,6 +3,7 @@ import Branch from "../models/Branch";
 import {sendResponse} from "../utils/http";
 import {logger} from "../utils/logger";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const router = express.Router()
 
@@ -55,5 +56,26 @@ router.post('/', async (req: express.Request, res: express.Response) => {
     }
     sendResponse(data, res, error,  responseStatus)
 })
+
+
+router.delete('/:id', async (req: express.Request, res: express.Response) => {
+    const id = new mongoose.Types.ObjectId(req.params.id);
+    let error = undefined;
+    let data = {};
+    let responseStatus = 200
+    try{
+        const deletedBranch = await Branch.findByIdAndDelete(id, {returnDocument: 'after'});
+        if(deletedBranch){
+            data = deletedBranch;
+        }
+    }
+    catch(err){
+        logger(err);
+        error = err
+        responseStatus = 500
+    }
+    sendResponse(data, res, error,  responseStatus)
+})
+
 
 export default router;

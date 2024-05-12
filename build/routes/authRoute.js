@@ -16,11 +16,12 @@ const express = require("express");
 const User_1 = __importDefault(require("../models/User"));
 const http_1 = require("../utils/http");
 const logger_1 = require("../utils/logger");
-const common_1 = require("../utils/common");
+const auth_1 = require("../utils/auth");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const constants_1 = require("../utils/constants");
 const node_crypto_1 = __importDefault(require("node:crypto"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const router = express.Router();
 router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let responseCode = 401;
@@ -36,12 +37,14 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
             let data = {};
             if (!isAuth) {
                 error = constants_1.ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD;
+                responseCode = 401;
             }
-            data = { _id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin: user.isSuperAdmin, email: user.email };
-            const token = (0, common_1.createToken)(user._id, user.uLocation, user.isSuperAdmin);
-            console.log(data);
-            res.cookie('jwt', token, { httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain: process.env.CLIENT_DOMAIN });
-            responseCode = 200;
+            else {
+                data = { _id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin: user.isSuperAdmin, email: user.email };
+                const token = (0, auth_1.createToken)(user._id, user.uLocation, user.isSuperAdmin);
+                res.cookie('jwt', token, { httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain: process.env.CLIENT_DOMAIN });
+                responseCode = 200;
+            }
             (0, http_1.sendResponse)(data, res, error, responseCode);
         }
     }
@@ -59,7 +62,7 @@ router.post("/register", (req, res) => __awaiter(void 0, void 0, void 0, functio
     let data = {};
     try {
         const savedUser = yield user.save();
-        const token = (0, common_1.createToken)(savedUser._id, savedUser.uLocation, savedUser.isSuperAdmin);
+        const token = (0, auth_1.createToken)(savedUser._id, savedUser.uLocation, savedUser.isSuperAdmin);
         res.cookie('jwt', token, {
             // httpOnly: true,
             maxAge: process.env.JWT_MAX_AGE,
@@ -76,7 +79,7 @@ router.post("/logout", (req, res) => __awaiter(void 0, void 0, void 0, function*
     res.send('logout');
 }));
 router.get('/logout', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const token = (0, common_1.createFakeToken)();
+    const token = (0, auth_1.createFakeToken)();
     res.cookie('jwt', token, { httpOnly: false, maxAge: 0, domain: 'localhost' });
     res.send({});
 }));
@@ -99,7 +102,6 @@ router.get('/reset-password/:id', (req, res) => {
     res.redirect(`${process.env.PROTOCOL}://${process.env.CLIENT_DOMAIN}:${process.env.CLIENT_PORT}/reset-password`);
 });
 router.post('/pwd-reset', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body.password);
     let data = {};
     let error = undefined;
     let responseStatus = 200;
@@ -114,6 +116,59 @@ router.post('/pwd-reset', (req, res) => __awaiter(void 0, void 0, void 0, functi
         responseStatus = 500;
     }
     (0, http_1.sendResponse)(data, res, error, responseStatus);
+}));
+router.post('/change-password', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    let data = {};
+    let error = undefined;
+    let responseStatus = 200;
+    try {
+        const cookies = (_a = req.cookies) !== null && _a !== void 0 ? _a : {};
+        const token = cookies.jwt;
+        if (token) {
+            jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
+                let foundUser = yield User_1.default.findById(decoded.id);
+                if (foundUser === undefined || foundUser === null) {
+                    error = "User not found";
+                    responseStatus = 401;
+                    (0, http_1.sendResponse)(data, res, error, responseStatus);
+                }
+                else {
+                    const isAuth = yield bcrypt_1.default.compare(req.body.oldPassword, foundUser.password);
+                    if (isAuth) {
+                        const salt = yield bcrypt_1.default.genSalt(10);
+                        const hashedPassword = yield bcrypt_1.default.hash(req.body.newPassword, salt);
+                        const user = yield User_1.default.findOneAndUpdate({ _id: decoded.id }, { password: hashedPassword });
+                        if (user === undefined || user === null) {
+                            error = "Could not change the password";
+                            responseStatus = 500;
+                            (0, http_1.sendResponse)(data, res, error, responseStatus);
+                        }
+                        else {
+                            data = { _id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin: user.isSuperAdmin, email: user.email };
+                            (0, http_1.sendResponse)(data, res, undefined, responseStatus);
+                        }
+                    }
+                    else {
+                        error = "Current password is incorrect";
+                        responseStatus = 500;
+                        (0, http_1.sendResponse)(data, res, error, responseStatus);
+                    }
+                }
+            }));
+        }
+        else {
+            error = "Unauthorized user";
+            responseStatus = 401;
+            (0, http_1.sendResponse)(data, res, error, responseStatus);
+        }
+    }
+    catch (err) {
+        (0, logger_1.logger)(err);
+        error = err;
+        responseStatus = 500;
+        (0, http_1.sendResponse)(data, res, error, responseStatus);
+    }
 }));
 router.get('/sendmail/:email', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const email = req.params.email;

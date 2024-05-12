@@ -13,7 +13,6 @@ const branchSchema = new Schema({
     },
     branchLocation: {
         type: String,
-        required: [true, 'Location of the branch is mandatory'],
     },
     stocks: [{ type: Schema.Types.ObjectId, ref: 'stock' }]
 });

@@ -18,6 +18,7 @@ const cors_1 = __importDefault(require("cors"));
 const temporaryRoute_1 = __importDefault(require("./routes/temporaryRoute"));
 const dashboardRoute_1 = __importDefault(require("./routes/dashboardRoute"));
 const startup_1 = require("./utils/startup");
+const pdfGeneratorRoute_1 = __importDefault(require("./routes/pdfGeneratorRoute"));
 (0, startup_1.startup)();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
@@ -38,6 +39,7 @@ app.use('/stock', stockRoute_1.default);
 app.use('/report', stockReportRoute_1.default);
 app.use('/temporary', temporaryRoute_1.default);
 app.use('/dashboard', dashboardRoute_1.default);
+app.use('/pdfGenerator', pdfGeneratorRoute_1.default);
 app.listen(process.env.PORT || 8080, () => {
     console.log(`[INFO] Server started on http://localhost:${process.env.PORT}`);
 });
