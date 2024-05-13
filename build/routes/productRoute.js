@@ -64,13 +64,17 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     (0, http_1.sendResponse)(data, res, error);
 }));
-router.put('/:id', uploadProductImage.single('image'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c, _d;
-    req.body.image = getFileName((_d = (_c = req.file) === null || _c === void 0 ? void 0 : _c.originalname) !== null && _d !== void 0 ? _d : 'default');
+router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const changes = req.body;
+    const changes = {
+        productName: req.body.productName,
+        description: req.body.description,
+        price: req.body.price,
+        sku: req.body.sku,
+    };
     let error = undefined;
     let data = {};
+    let responseStatus = 200;
     try {
         const updatedProduct = yield Product_1.default.findByIdAndUpdate(id, changes, { new: true });
         if (updatedProduct) {
@@ -80,8 +84,9 @@ router.put('/:id', uploadProductImage.single('image'), (req, res) => __awaiter(v
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
@@ -114,7 +119,12 @@ router.get('/price/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
     catch (err) {
         (0, logger_1.logger)(err);
-        error = err;
+        if (err.errorResponse.code == 11000) {
+            error = { _message: "Product needs to be unique" };
+        }
+        else {
+            error = err;
+        }
         responseStatus = 500;
     }
     (0, http_1.sendResponse)(data, res, error, responseStatus);

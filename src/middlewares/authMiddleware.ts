@@ -20,9 +20,11 @@ const authorize = (req: express.Request, res: express.Response, next: express.Ne
         jwt.verify(token, process.env.JWT_SECRET, (err:any, decoded:any) => {
             if(err && !whiteList.includes(requestedURL)){
                 sendResponse({}, res, ErrorMessages.UNAUTHENTICATED_USER,401);
+                return
             }
-            next();
-        })
+            else{
+                next();
+            }})
         return;
     }
     if (!requestedURL.includes('auth')){

@@ -16,7 +16,6 @@ const express_1 = __importDefault(require("express"));
 const logger_1 = require("../utils/logger");
 const http_1 = require("../utils/http");
 const User_1 = __importDefault(require("../models/User"));
-const Product_1 = __importDefault(require("../models/Product"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const router = express_1.default.Router();
@@ -30,7 +29,7 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
                 console.log(decoded.id);
                 if (decoded.isSuperAdmin) {
-                    const users = yield User_1.default.find({ _id: { $ne: decoded.id } }).populate('uLocation');
+                    const users = yield User_1.default.find({ _id: { $ne: decoded.id } }).select('-password').populate('uLocation');
                     if (users) {
                         data = users;
                     }
@@ -77,12 +76,16 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    const changes = req.body;
+    const changes = {
+        email: req.body.email,
+        username: req.body.username,
+        location: req.body.location,
+    };
     let error = undefined;
     let data = {};
     let responseStatus = 200;
     try {
-        const updatedUser = yield Product_1.default.findByIdAndUpdate(id, changes, { new: true });
+        const updatedUser = yield User_1.default.findByIdAndUpdate(id, changes, { new: true });
         if (updatedUser) {
             data = updatedUser;
         }

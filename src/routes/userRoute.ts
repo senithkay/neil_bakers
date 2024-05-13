@@ -19,7 +19,7 @@ router.get("/", async (req: express.Request, res: express.Response) => {
             jwt.verify(token, process.env.JWT_SECRET, async (err:any, decoded:any) => {
                 console.log(decoded.id)
                 if (decoded.isSuperAdmin){
-                    const users = await User.find({_id: { $ne: decoded.id } }).populate('uLocation');
+                    const users = await User.find({_id: { $ne: decoded.id } }).select('-password').populate('uLocation');
                     if (users){
                         data = users;
                     }
@@ -68,12 +68,16 @@ router.post("/", async (req: express.Request, res: express.Response) => {
 
 router.put('/:id', async (req: express.Request, res: express.Response) => {
     const id = req.params.id;
-    const changes = req.body;
+    const changes = {
+        email: req.body.email,
+        username: req.body.username,
+        location: req.body.location,
+    };
     let error = undefined;
     let data = {};
     let responseStatus = 200
     try {
-        const updatedUser = await Product.findByIdAndUpdate(id, changes, {new: true});
+        const updatedUser = await User.findByIdAndUpdate(id, changes, {new: true});
         if(updatedUser){
             data = updatedUser;
         }

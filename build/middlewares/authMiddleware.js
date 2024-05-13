@@ -23,8 +23,11 @@ const authorize = (req, res, next) => {
         jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET, (err, decoded) => {
             if (err && !whiteList.includes(requestedURL)) {
                 (0, http_1.sendResponse)({}, res, constants_1.ErrorMessages.UNAUTHENTICATED_USER, 401);
+                return;
             }
-            next();
+            else {
+                next();
+            }
         });
         return;
     }

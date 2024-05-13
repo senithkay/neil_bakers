@@ -5,6 +5,7 @@ import {sendResponse} from "../utils/http";
 import multer from 'multer';
 import {Error} from "mongoose";
 import Stock from "../models/Stock";
+import User from "../models/User";
 
 const router = express.Router();
 
@@ -58,12 +59,17 @@ router.get('/', async (req: express.Request, res: express.Response) => {
     sendResponse(data, res, error);
 })
 
-router.put('/:id',uploadProductImage.single('image'), async (req: express.Request, res: express.Response) => {
-    req.body.image = getFileName(req.file?.originalname??'default');
+router.put('/:id', async (req: express.Request, res: express.Response) => {
     const id = req.params.id;
-    const changes = req.body;
+    const changes = {
+        productName: req.body.productName,
+        description: req.body.description,
+        price: req.body.price,
+        sku: req.body.sku,
+    };
     let error = undefined;
     let data = {};
+    let responseStatus = 200
     try {
         const updatedProduct = await Product.findByIdAndUpdate(id, changes, {new: true});
         if(updatedProduct){
@@ -72,8 +78,9 @@ router.put('/:id',uploadProductImage.single('image'), async (req: express.Reques
     }catch (err){
         logger(err);
         error = err
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,  responseStatus)
 })
 
 router.delete('/:id', async (req: express.Request, res: express.Response) => {
@@ -106,9 +113,14 @@ router.get('/price/:id', async (req: express.Request, res: express.Response) => 
             data = {productId: product._id, price:product.price}
         }
     }
-    catch (err){
+    catch (err:any){
         logger(err)
-        error = err
+        if (err.errorResponse.code == 11000){
+            error = {_message:"Product needs to be unique"}
+        }
+        else{
+            error = err
+        }
         responseStatus = 500
     }
     sendResponse(data, res, error,  responseStatus)
