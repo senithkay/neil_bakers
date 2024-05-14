@@ -102,6 +102,7 @@ router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     let error = undefined;
     let data = {};
     let responseStatus = 200;
+    console.log("hi");
     try {
         const deletedUser = yield User_1.default.findByIdAndDelete(id, { returnDocument: 'after' });
         if (deletedUser) {
