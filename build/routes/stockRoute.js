@@ -19,20 +19,51 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const logger_1 = require("../utils/logger");
 const http_1 = require("../utils/http");
 const router = express_1.default.Router();
-router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+//Todo Remove this
+// router.get("/:id", async (req: express.Request, res: express.Response) => {
+//    let error = undefined;
+//    let data:any[] = [];
+//     let responseStatus = 200
+//    try{
+//        const branch = await Branch.findById(req.params.id).populate({ path: 'stocks', populate: { path: 'productId', select: 'productName' } });
+//        if (branch && branch.stocks) {
+//            data = branch.stocks
+//        }
+//    }
+//    catch (err){
+//        logger(err);
+//        error = err;
+//        responseStatus = 500
+//    }
+//     sendResponse(data, res, error,  responseStatus)
+//
+// })
+router.get('/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let data = {};
     let error = undefined;
-    let data = [];
+    let date = req.params.date;
+    if (req.params.date === undefined || req.params.date === null) { }
     let responseStatus = 200;
     try {
         const branch = yield Branch_1.default.findById(req.params.id).populate({ path: 'stocks', populate: { path: 'productId', select: 'productName' } });
-        if (branch && branch.stocks) {
-            data = branch.stocks;
+        if (branch) {
+            const stocks = branch.stocks;
+            const filteredData = [];
+            stocks.forEach((stock) => {
+                if (stock.date === date) {
+                    filteredData.push(stock);
+                }
+            });
+            data = filteredData;
+        }
+        else {
+            error = 'Invalid branch ID';
+            responseStatus = 400;
         }
     }
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
-        responseStatus = 500;
     }
     (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));

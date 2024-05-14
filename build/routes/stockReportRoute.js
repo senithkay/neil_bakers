@@ -39,15 +39,6 @@ router.get('/daily/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, f
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportData.push(reportRow);
                 }
-                else {
-                    reportRow.productName = stock.productId.productName;
-                    reportRow.pricePerUnit = stock.pricePerUnit;
-                    reportRow.soldStock = 0;
-                    reportRow.openingStock = 0;
-                    reportRow.balanceStock = 0;
-                    reportRow.totalSales = 0;
-                    reportData.push(reportRow);
-                }
             });
             data = reportData;
         }
@@ -85,15 +76,6 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
                     reportRow.openingStock = stock.availableStock;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
-                    reportData.push(reportRow);
-                }
-                else {
-                    reportRow.productName = stock.productId.productName;
-                    reportRow.pricePerUnit = 0;
-                    reportRow.soldStock = 0;
-                    reportRow.openingStock = 0;
-                    reportRow.balanceStock = 0;
-                    reportRow.totalSales = 0;
                     reportData.push(reportRow);
                 }
             });
@@ -139,15 +121,6 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
                     reportRow.openingStock = stock.availableStock;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
-                    reportData.push(reportRow);
-                }
-                else {
-                    reportRow.productName = stock.productId.productName;
-                    reportRow.pricePerUnit = 0;
-                    reportRow.soldStock = 0;
-                    reportRow.openingStock = 0;
-                    reportRow.balanceStock = 0;
-                    reportRow.totalSales = 0;
                     reportData.push(reportRow);
                 }
             });

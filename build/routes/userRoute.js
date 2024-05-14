@@ -33,6 +33,7 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     if (users) {
                         data = users;
                     }
+                    console.log(users);
                     (0, http_1.sendResponse)(data, res, undefined);
                 }
                 else {
@@ -40,7 +41,6 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     (0, http_1.sendResponse)(data, res, undefined);
                 }
             }));
-            console.log(data);
         }
         else {
             (0, http_1.sendResponse)(data, res, 'User not found', 400);

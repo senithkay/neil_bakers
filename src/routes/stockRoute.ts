@@ -4,27 +4,56 @@ import Stock from "../models/Stock";
 import mongoose from "mongoose";
 import {logger} from "../utils/logger";
 import {sendResponse} from "../utils/http";
-import Product from "../models/Product";
 
 const router = express.Router();
 
-router.get("/:id", async (req: express.Request, res: express.Response) => {
-   let error = undefined;
-   let data:any[] = [];
-    let responseStatus = 200
-   try{
-       const branch = await Branch.findById(req.params.id).populate({ path: 'stocks', populate: { path: 'productId', select: 'productName' } });
-       if (branch && branch.stocks) {
-           data = branch.stocks
-       }
-   }
-   catch (err){
-       logger(err);
-       error = err;
-       responseStatus = 500
-   }
-    sendResponse(data, res, error,  responseStatus)
+//Todo Remove this
+// router.get("/:id", async (req: express.Request, res: express.Response) => {
+//    let error = undefined;
+//    let data:any[] = [];
+//     let responseStatus = 200
+//    try{
+//        const branch = await Branch.findById(req.params.id).populate({ path: 'stocks', populate: { path: 'productId', select: 'productName' } });
+//        if (branch && branch.stocks) {
+//            data = branch.stocks
+//        }
+//    }
+//    catch (err){
+//        logger(err);
+//        error = err;
+//        responseStatus = 500
+//    }
+//     sendResponse(data, res, error,  responseStatus)
+//
+// })
 
+router.get('/:id/:date', async(req: express.Request, res: express.Response) => {
+    let data = {};
+    let error = undefined;
+    let date = req.params.date;
+    if(req.params.date === undefined || req.params.date === null){}
+    let responseStatus = 200
+    try{
+        const branch = await Branch.findById(req.params.id).populate({path: 'stocks', populate: { path: 'productId', select: 'productName' }} );
+        if (branch){
+            const stocks = branch.stocks
+            const filteredData: any = []
+            stocks.forEach((stock:any) => {
+                if (stock.date === date){
+                    filteredData.push(stock)
+                }
+            })
+            data=filteredData;
+        }
+        else{
+            error = 'Invalid branch ID'
+            responseStatus = 400
+        }
+    }catch(err){
+        logger(err);
+        error = err;
+    }
+    sendResponse(data, res, error,  responseStatus)
 })
 
 router.get("/:id/:date", async (req: express.Request, res: express.Response) => {

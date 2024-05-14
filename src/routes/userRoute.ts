@@ -23,6 +23,7 @@ router.get("/", async (req: express.Request, res: express.Response) => {
                     if (users){
                         data = users;
                     }
+                    console.log(users)
                     sendResponse(data, res, undefined);
                 }
                 else{
@@ -30,7 +31,6 @@ router.get("/", async (req: express.Request, res: express.Response) => {
                     sendResponse(data, res, undefined);
                 }
             })
-            console.log(data)
         }
         else{
             sendResponse(data, res, 'User not found', 400);
