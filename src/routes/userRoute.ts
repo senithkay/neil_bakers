@@ -95,6 +95,7 @@ router.delete('/:id', async (req: express.Request, res: express.Response) => {
     let error = undefined;
     let data = {};
     let responseStatus = 200
+    console.log("hi")
     try{
         const deletedUser = await User.findByIdAndDelete(id, {returnDocument: 'after'});
         if(deletedUser){
