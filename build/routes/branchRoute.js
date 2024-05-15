@@ -32,7 +32,7 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     data = yield Branch_1.default.find();
                 }
                 else {
-                    data.push(yield Branch_1.default.findOne({ _id: decoded.uLocation }));
+                    data = yield Branch_1.default.find({ _id: { $in: decoded.uLocation } });
                 }
                 (0, http_1.sendResponse)(data, res, undefined, 200);
             }));

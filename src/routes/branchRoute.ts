@@ -20,7 +20,7 @@ router.get('/', async (req: express.Request, res: express.Response) => {
                     data = await Branch.find()
                 }
                 else{
-                    data.push(await Branch.findOne({_id: decoded.uLocation}))
+                    data = await Branch.find({_id: {$in:decoded.uLocation}})
                 }
                 sendResponse(data, res, undefined, 200);
             })
