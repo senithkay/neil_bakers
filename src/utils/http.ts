@@ -16,7 +16,7 @@ export const sendResponse = (payload: any, res: express.Response, error? : any, 
             res.status(500)
             description = cause.properties.message;
             if (cause.properties.message === undefined) {
-                description = error.errors
+                description = "Unexpected error occurred"
             }
             else{
                 description = cause.properties.message;
