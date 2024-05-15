@@ -7,7 +7,13 @@ const logger = (error) => {
     if (error.errors !== undefined && error.errors !== null) {
         const key = Object.keys(error.errors)[0];
         const cause = error.errors[key];
-        description = cause.properties.message;
+        if (cause.properties === undefined || cause.properties.message === undefined) {
+            console.log(error.errors);
+            return;
+        }
+        else {
+            description = cause.properties.message;
+        }
     }
     else if (error.code !== undefined && error.code !== null && error.code === 11000) {
         const key = Object.keys(error.keyValue)[0];

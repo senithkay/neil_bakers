@@ -15,6 +15,12 @@ export const sendResponse = (payload: any, res: express.Response, error? : any, 
             const cause = error.errors[key]
             res.status(500)
             description = cause.properties.message;
+            if (cause.properties.message === undefined) {
+                description = error.errors
+            }
+            else{
+                description = cause.properties.message;
+            }
         }
         else if (error.code !== undefined && error.code !== null && error.code === 11000){
             const key = Object.keys(error.keyValue)[0]
