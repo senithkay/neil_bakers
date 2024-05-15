@@ -15,8 +15,7 @@ const sendResponse = (payload, res, error, statusCode) => {
             const key = Object.keys(error.errors)[0];
             const cause = error.errors[key];
             res.status(500);
-            description = cause.properties.message;
-            if (cause.properties.message === undefined) {
+            if (cause.properties === undefined || cause.properties.message === undefined) {
                 description = "Unexpected error occurred";
             }
             else {
