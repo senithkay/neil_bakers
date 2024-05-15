@@ -4,7 +4,7 @@ import {sendResponse} from "../utils/http";
 import {logger} from "../utils/logger";
 import {createFakeToken, createToken} from "../utils/auth";
 import bcrypt from "bcrypt";
-import {ErrorMessages} from "../utils/constants";
+import {ErrorMessages} from "../utils/Common";
 import crypto from "node:crypto";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
@@ -233,7 +233,6 @@ router.get('/sendmail/:email', async (req: express.Request, res: express.Respons
 </body>
 </html>`,
     }).then((info)=>{
-        console.log(info)
         res.redirect(`${process.env.PROTOCOL}://${process.env.CLIENT_DOMAIN}:${process.env.CLIENT_PORT}/`);
     });
 

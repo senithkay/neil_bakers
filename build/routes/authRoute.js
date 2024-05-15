@@ -18,7 +18,7 @@ const http_1 = require("../utils/http");
 const logger_1 = require("../utils/logger");
 const auth_1 = require("../utils/auth");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const constants_1 = require("../utils/constants");
+const Common_1 = require("../utils/Common");
 const node_crypto_1 = __importDefault(require("node:crypto"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -29,14 +29,14 @@ router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         let error = undefined;
         const user = yield User_1.default.findOne({ email: req.body.email });
         if (!user) {
-            (0, http_1.sendResponse)({}, res, constants_1.ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD, 401);
+            (0, http_1.sendResponse)({}, res, Common_1.ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD, 401);
             return;
         }
         else {
             const isAuth = yield bcrypt_1.default.compare(req.body.password, user.password);
             let data = {};
             if (!isAuth) {
-                error = constants_1.ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD;
+                error = Common_1.ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD;
                 responseCode = 401;
             }
             else {
@@ -232,7 +232,6 @@ router.get('/sendmail/:email', (req, res) => __awaiter(void 0, void 0, void 0, f
 </body>
 </html>`,
     }).then((info) => {
-        console.log(info);
         res.redirect(`${process.env.PROTOCOL}://${process.env.CLIENT_DOMAIN}:${process.env.CLIENT_PORT}/`);
     });
 }));

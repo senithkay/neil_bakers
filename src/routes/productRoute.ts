@@ -29,6 +29,7 @@ router.post('/', uploadProductImage.single('image'),async (req: express.Request,
     const product = new Product(req.body);
     let error = undefined;
     let data = {}
+    let responseStatus = 200
     try{
         const savedProduct = await product.save();
         if(savedProduct){
@@ -38,14 +39,17 @@ router.post('/', uploadProductImage.single('image'),async (req: express.Request,
     catch (err){
         logger(err);
         error = err;
+        responseStatus = 500
+
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,responseStatus);
 })
 
 
 router.get('/', async (req: express.Request, res: express.Response) => {
     let data:any = []
     let error = undefined;
+    let responseStatus = 200
     try {
         const products = await Product.find();
         if (products){
@@ -55,8 +59,9 @@ router.get('/', async (req: express.Request, res: express.Response) => {
     catch (err){
         logger(err)
         error = err;
+        responseStatus = 500
     }
-    sendResponse(data, res, error);
+    sendResponse(data, res, error,responseStatus);
 })
 
 router.put('/:id', async (req: express.Request, res: express.Response) => {

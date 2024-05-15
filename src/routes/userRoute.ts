@@ -17,13 +17,11 @@ router.get("/", async (req: express.Request, res: express.Response) => {
         const token = cookies.jwt;
         if (token){
             jwt.verify(token, process.env.JWT_SECRET, async (err:any, decoded:any) => {
-                console.log(decoded.id)
                 if (decoded.isSuperAdmin){
                     const users = await User.find({_id: { $ne: decoded.id } }).select('-password').populate('uLocation');
                     if (users){
                         data = users;
                     }
-                    console.log(users)
                     sendResponse(data, res, undefined);
                 }
                 else{
@@ -95,7 +93,6 @@ router.delete('/:id', async (req: express.Request, res: express.Response) => {
     let error = undefined;
     let data = {};
     let responseStatus = 200
-    console.log("hi")
     try{
         const deletedUser = await User.findByIdAndDelete(id, {returnDocument: 'after'});
         if(deletedUser){

@@ -51,7 +51,6 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
     let responseStatus = 200
     try{
         const branch = await Branch.findById(req.params.id).populate({path: 'stocks', populate: { path: 'productId', select: 'productName' }} );
-        console.log(branch);
         if (branch){
             const reportData:StockReport[] = []
             const stocks = branch.stocks

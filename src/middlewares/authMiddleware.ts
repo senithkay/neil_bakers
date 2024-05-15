@@ -1,7 +1,7 @@
 import express from 'express'
 import jwt from 'jsonwebtoken';
 import {sendResponse} from "../utils/http";
-import {ErrorMessages} from "../utils/constants";
+import {ErrorMessages} from "../utils/Common";
 
 const whiteList = [
     "/auth/login",

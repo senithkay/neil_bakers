@@ -62,7 +62,6 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
     let responseStatus = 200;
     try {
         const branch = yield Branch_1.default.findById(req.params.id).populate({ path: 'stocks', populate: { path: 'productId', select: 'productName' } });
-        console.log(branch);
         if (branch) {
             const reportData = [];
             const stocks = branch.stocks;

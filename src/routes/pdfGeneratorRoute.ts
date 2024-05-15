@@ -29,15 +29,7 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportData.push(reportRow)
                 }
-                else{
-                    reportRow.productName = stock.productId.productName;
-                    reportRow.pricePerUnit = stock.pricePerUnit;
-                    reportRow.soldStock = 0;
-                    reportRow.openingStock = 0;
-                    reportRow.balanceStock = 0;
-                    reportRow.totalSales = 0;
-                    reportData.push(reportRow)
-                }
+
 
             })
             const browser = await puppeteer.launch()
@@ -85,7 +77,6 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
     let responseStatus = 200
     try{
         const branch = await Branch.findById(req.params.id).populate({path: 'stocks', populate: { path: 'productId', select: 'productName' }} );
-        console.log(branch);
         if (branch){
             const reportData:StockReport[] = []
             const stocks = branch.stocks
@@ -101,15 +92,7 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportData.push(reportRow)
                 }
-                else{
-                    reportRow.productName = stock.productId.productName;
-                    reportRow.pricePerUnit = 0;
-                    reportRow.soldStock = 0;
-                    reportRow.openingStock = 0;
-                    reportRow.balanceStock = 0;
-                    reportRow.totalSales = 0;
-                    reportData.push(reportRow)
-                }
+
             })
             const browser = await puppeteer.launch()
             const page = await browser.newPage();
@@ -178,15 +161,7 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportData.push(reportRow)
                 }
-                else{
-                    reportRow.productName = stock.productId.productName;
-                    reportRow.pricePerUnit = 0;
-                    reportRow.soldStock = 0;
-                    reportRow.openingStock = 0;
-                    reportRow.balanceStock = 0;
-                    reportRow.totalSales = 0;
-                    reportData.push(reportRow)
-                }
+
             })
             const browser = await puppeteer.launch()
             const page = await browser.newPage();

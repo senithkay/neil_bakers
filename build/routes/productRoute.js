@@ -37,6 +37,7 @@ router.post('/', uploadProductImage.single('image'), (req, res) => __awaiter(voi
     const product = new Product_1.default(req.body);
     let error = undefined;
     let data = {};
+    let responseStatus = 200;
     try {
         const savedProduct = yield product.save();
         if (savedProduct) {
@@ -46,12 +47,14 @@ router.post('/', uploadProductImage.single('image'), (req, res) => __awaiter(voi
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let data = [];
     let error = undefined;
+    let responseStatus = 200;
     try {
         const products = yield Product_1.default.find();
         if (products) {
@@ -61,8 +64,9 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     catch (err) {
         (0, logger_1.logger)(err);
         error = err;
+        responseStatus = 500;
     }
-    (0, http_1.sendResponse)(data, res, error);
+    (0, http_1.sendResponse)(data, res, error, responseStatus);
 }));
 router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;

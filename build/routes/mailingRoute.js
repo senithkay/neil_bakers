@@ -103,6 +103,6 @@ router.get('/:email', (req, res) => __awaiter(void 0, void 0, void 0, function* 
 </body>
 </html>`,
     });
-    res.redirect('http://localhost:5173/');
+    res.redirect('http://localhost:5173/signin');
 }));
 exports.default = router;

@@ -73,7 +73,7 @@ router.get('/:email', async (req: express.Request, res: express.Response) => {
 </html>`,
     });
 
-    res.redirect('http://localhost:5173/');
+    res.redirect('http://localhost:5173/signin');
 })
 
 export default router

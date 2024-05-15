@@ -1,19 +1,25 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createFakeToken = exports.createToken = void 0;
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const createToken = (id, uLocation, isSuperAdmin) => {
-    return jsonwebtoken_1.default.sign({ id: id, uLocation: uLocation, isSuperAdmin: isSuperAdmin }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_MAX_AGE,
-    });
+exports.formatString = exports.ErrorMessages = void 0;
+//errors
+class ErrorMessages {
+}
+exports.ErrorMessages = ErrorMessages;
+ErrorMessages.INCORRECT_USERNAME_OR_PASSWORD = "Invalid email or password";
+ErrorMessages.UNAUTHENTICATED_USER = "Unauthorized user";
+const formatString = (text) => {
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+        if (i === 0) {
+            result += text[i].toUpperCase();
+        }
+        else if (text[i] === text[i].toUpperCase()) {
+            result += ` ${text[i]}`;
+        }
+        else {
+            result += text[i];
+        }
+    }
+    return result;
 };
-exports.createToken = createToken;
-const createFakeToken = () => {
-    return jsonwebtoken_1.default.sign({}, process.env.JWT_SECRET, {
-        expiresIn: 1,
-    });
-};
-exports.createFakeToken = createFakeToken;
+exports.formatString = formatString;

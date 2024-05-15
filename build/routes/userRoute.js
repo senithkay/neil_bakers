@@ -27,13 +27,11 @@ router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const token = cookies.jwt;
         if (token) {
             jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
-                console.log(decoded.id);
                 if (decoded.isSuperAdmin) {
                     const users = yield User_1.default.find({ _id: { $ne: decoded.id } }).select('-password').populate('uLocation');
                     if (users) {
                         data = users;
                     }
-                    console.log(users);
                     (0, http_1.sendResponse)(data, res, undefined);
                 }
                 else {
@@ -102,7 +100,6 @@ router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     let error = undefined;
     let data = {};
     let responseStatus = 200;
-    console.log("hi");
     try {
         const deletedUser = yield User_1.default.findByIdAndDelete(id, { returnDocument: 'after' });
         if (deletedUser) {
