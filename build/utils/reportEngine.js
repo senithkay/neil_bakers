@@ -21,7 +21,7 @@ const TEMPLATE_DIR = path_1.default.resolve(__dirname, '../../reportTemplates/')
 const compileReport = (templateName, data) => __awaiter(void 0, void 0, void 0, function* () {
     const filePath = path_1.default.join(TEMPLATE_DIR, templateName);
     const html = yield fs_extra_1.default.readFile(filePath, 'utf-8');
-    const logoBase64 = base64Encode('./src/public/logo.png');
+    const logoBase64 = base64Encode('./src/public/lh.jpg');
     return handlebars_1.default.compile(html.replace('${logoBase64}', logoBase64))(data);
 });
 exports.compileReport = compileReport;
