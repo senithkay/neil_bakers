@@ -99,16 +99,29 @@ router.get('/reset-password/:id', (req, res) => {
     if (timeDif > 300000) {
         (0, http_1.sendResponse)({}, res, 'Link expired', 400);
     }
-    res.redirect(`${process.env.PROTOCOL}://${process.env.CLIENT_DOMAIN}:${process.env.CLIENT_PORT}/reset-password`);
+    else {
+        res.redirect(`${process.env.PROTOCOL}://${process.env.CLIENT_DOMAIN}:${process.env.CLIENT_PORT}/reset-password/${id}`);
+    }
 });
 router.post('/pwd-reset', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let data = {};
     let error = undefined;
     let responseStatus = 200;
     try {
+        const encrypted = req.body.key;
+        const algorithm = 'aes-256-cbc';
+        const key = Buffer.from(process.env.MAIL_ENCRYPTION_KEY, 'hex');
+        const iv = Buffer.from(process.env.MAIL_ENCRYPTION_IV, 'hex');
+        const decipher = node_crypto_1.default.createDecipheriv(algorithm, Buffer.from(key), iv);
+        let decrypted = decipher.update(encrypted, 'hex', 'utf-8');
+        decrypted += decipher.final('utf-8');
+        const decryptedData = JSON.parse(decrypted);
         const salt = yield bcrypt_1.default.genSalt(10);
         const hashedPassword = yield bcrypt_1.default.hash(req.body.password, salt);
-        data = yield User_1.default.findOneAndUpdate({ email: req.body.email }, { password: hashedPassword }, { new: true });
+        const updatedUser = yield User_1.default.findOneAndUpdate({ email: decryptedData.email }, { password: hashedPassword }, { new: true });
+        if (updatedUser) {
+            data = { _id: updatedUser._id };
+        }
     }
     catch (err) {
         (0, logger_1.logger)(err);
@@ -181,6 +194,7 @@ router.get('/sendmail/:email', (req, res) => __awaiter(void 0, void 0, void 0, f
     const plaintext = {
         id: user._id,
         time: new Date(),
+        email: email
     };
     const algorithm = 'aes-256-cbc';
     const key = Buffer.from(process.env.MAIL_ENCRYPTION_KEY, 'hex');
