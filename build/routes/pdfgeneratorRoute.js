@@ -37,10 +37,14 @@ router.get('/daily/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, f
                     reportRow.pricePerUnit = stock.pricePerUnit;
                     reportRow.soldStock = stock.availableStock - stock.remainingStock;
                     reportRow.openingStock = stock.availableStock;
+                    reportRow.date = stock.date;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportData.push(reportRow);
                 }
+            });
+            const parsedData = reportData.map((item) => {
+                return Object.assign(Object.assign({}, item), { totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2) });
             });
             const browser = yield puppeteer_1.default.launch();
             const page = yield browser.newPage();
@@ -49,7 +53,7 @@ router.get('/daily/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, f
                     title: 'Stocks Report',
                     description: 'Stock report for the month',
                 },
-                stocks: reportData,
+                stocks: parsedData,
             });
             yield page.setContent(content);
             yield page.emulateMediaType('screen');
@@ -90,15 +94,18 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
             stocks.forEach((stock) => {
                 const reportRow = new StockReportRow();
                 if (stock.date >= fromDate && stock.date <= toDate) {
-                    //TODo change the business logic
                     reportRow.productName = stock.productId.productName;
                     reportRow.pricePerUnit = stock.pricePerUnit;
                     reportRow.soldStock = stock.availableStock - stock.remainingStock;
                     reportRow.openingStock = stock.availableStock;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
+                    reportRow.date = stock.date;
                     reportData.push(reportRow);
                 }
+            });
+            const parsedData = reportData.map((item) => {
+                return Object.assign(Object.assign({}, item), { totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2) });
             });
             const browser = yield puppeteer_1.default.launch();
             const page = yield browser.newPage();
@@ -107,7 +114,7 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
                     title: 'Stocks Report',
                     description: 'Stock report for the month',
                 },
-                stocks: reportData,
+                stocks: parsedData,
             });
             yield page.setContent(content);
             yield page.emulateMediaType('screen');
@@ -162,8 +169,12 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
                     reportRow.openingStock = stock.availableStock;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
+                    reportRow.date = stock.date;
                     reportData.push(reportRow);
                 }
+            });
+            const parsedData = reportData.map((item) => {
+                return Object.assign(Object.assign({}, item), { totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2) });
             });
             const browser = yield puppeteer_1.default.launch();
             const page = yield browser.newPage();
@@ -172,7 +183,7 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
                     title: 'Stocks Report',
                     description: 'Stock report for the month',
                 },
-                stocks: reportData,
+                stocks: parsedData,
             });
             yield page.setContent(content);
             yield page.emulateMediaType('screen');
@@ -205,6 +216,7 @@ class StockReportRow {
         this.balanceStock = 0;
         this.pricePerUnit = 0;
         this.totalSales = 0;
+        this.date = '';
     }
 }
 exports.default = router;

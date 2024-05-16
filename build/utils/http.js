@@ -25,7 +25,10 @@ const sendResponse = (payload, res, error, statusCode) => {
         else if (error.code !== undefined && error.code !== null && error.code === 11000) {
             const key = Object.keys(error.keyValue)[0];
             const cause = error.keyValue[key];
-            description = `This ${(0, Common_1.formatString)(key)} : ${cause} is already in use`;
+            description = `This ${(0, Common_1.formatString)(key)} is already in use`;
+        }
+        else {
+            description = error;
         }
     }
     let data = {

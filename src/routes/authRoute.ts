@@ -170,6 +170,7 @@ router.post('/change-password', async (req, res) => {
         }
         else{
             error = "Unauthorized user"
+            logger(error)
             responseStatus = 401
             sendResponse(data, res, error,  responseStatus)
         }

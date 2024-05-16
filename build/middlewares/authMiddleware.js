@@ -7,9 +7,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const http_1 = require("../utils/http");
 const Common_1 = require("../utils/Common");
 const whiteList = [
-    "/auth/login",
-    "/auth/register",
-    "/auth/"
+    "/auth/change-password"
 ];
 const authorize = (req, res, next) => {
     var _a;
@@ -17,7 +15,7 @@ const authorize = (req, res, next) => {
     const token = cookies.jwt;
     const requestedURL = req.originalUrl;
     if (token) {
-        if (requestedURL.includes('auth')) {
+        if (requestedURL.includes('auth') && !whiteList.includes(requestedURL)) {
             res.cookie('jwt', token, { httpOnly: true, maxAge: 1 });
         }
         jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET, (err, decoded) => {

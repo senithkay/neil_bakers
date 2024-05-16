@@ -4,6 +4,7 @@ import {logger} from "../utils/logger";
 import {compileReport} from "../utils/reportEngine";
 import {sendResponse} from "../utils/http";
 import Branch from "../models/Branch";
+
 const router = express.Router();
 
 
@@ -25,12 +26,16 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
                     reportRow.pricePerUnit = stock.pricePerUnit;
                     reportRow.soldStock = stock.availableStock - stock.remainingStock;
                     reportRow.openingStock = stock.availableStock;
+                    reportRow.date = stock.date
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportData.push(reportRow)
                 }
 
 
+            })
+            const parsedData = reportData.map((item:StockReport) => {
+                return {...item, totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2)}
             })
             const browser = await puppeteer.launch()
             const page = await browser.newPage();
@@ -40,7 +45,7 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
                     title: 'Stocks Report',
                     description: 'Stock report for the month',
                 },
-                stocks:reportData,
+                stocks:parsedData,
             })
 
             await page.setContent(content)
@@ -83,16 +88,19 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
             stocks.forEach((stock:any) => {
                 const reportRow = new StockReportRow()
                 if (stock.date >= fromDate && stock.date <= toDate){
-                    //TODo change the business logic
                     reportRow.productName = stock.productId.productName;
                     reportRow.pricePerUnit = stock.pricePerUnit;
                     reportRow.soldStock = stock.availableStock - stock.remainingStock;
                     reportRow.openingStock = stock.availableStock;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
+                    reportRow.date = stock.date
                     reportData.push(reportRow)
                 }
 
+            })
+            const parsedData = reportData.map((item:StockReport) => {
+                return {...item, totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2)}
             })
             const browser = await puppeteer.launch()
             const page = await browser.newPage();
@@ -102,7 +110,7 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
                     title: 'Stocks Report',
                     description: 'Stock report for the month',
                 },
-                stocks:reportData,
+                stocks:parsedData,
             })
 
             await page.setContent(content)
@@ -159,9 +167,13 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
                     reportRow.openingStock = stock.availableStock;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
+                    reportRow.date = stock.date
                     reportData.push(reportRow)
                 }
 
+            })
+            const parsedData = reportData.map((item:StockReport) => {
+                return {...item, totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2)}
             })
             const browser = await puppeteer.launch()
             const page = await browser.newPage();
@@ -171,7 +183,7 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
                     title: 'Stocks Report',
                     description: 'Stock report for the month',
                 },
-                stocks:reportData,
+                stocks:parsedData,
             })
 
             await page.setContent(content)
@@ -213,6 +225,7 @@ class StockReportRow implements StockReport {
     balanceStock: number;
     pricePerUnit: number;
     totalSales: number;
+    date:string;
 
     constructor(
     ) {
@@ -222,6 +235,7 @@ class StockReportRow implements StockReport {
         this.balanceStock = 0;
         this.pricePerUnit = 0;
         this.totalSales = 0;
+        this.date = '';
     }
 }
 

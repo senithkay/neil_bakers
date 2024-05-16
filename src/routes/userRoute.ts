@@ -57,6 +57,7 @@ router.post("/", async (req: express.Request, res: express.Response) => {
         }
     }
     catch(err){
+        console.log(err)
         logger(err)
         error = (err as any)
         responseStatus = 500

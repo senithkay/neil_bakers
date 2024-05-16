@@ -64,6 +64,7 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
                     reportRow.openingStock = stock.availableStock;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
+                    reportRow.date = stock.date
                     reportData.push(reportRow)
                 }
             })
@@ -109,6 +110,7 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
                     reportRow.openingStock = stock.availableStock;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
+                    reportRow.date = stock.date
                     reportData.push(reportRow)
                 }
             })
@@ -142,6 +144,7 @@ class StockReportRow implements StockReport {
     balanceStock: number;
     pricePerUnit: number;
     totalSales: number;
+    date:string;
 
     constructor(
     ) {
@@ -151,6 +154,7 @@ class StockReportRow implements StockReport {
         this.balanceStock = 0;
         this.pricePerUnit = 0;
         this.totalSales = 0;
+        this.date = ''
     }
 }
 

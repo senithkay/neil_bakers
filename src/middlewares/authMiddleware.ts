@@ -4,9 +4,7 @@ import {sendResponse} from "../utils/http";
 import {ErrorMessages} from "../utils/Common";
 
 const whiteList = [
-    "/auth/login",
-    "/auth/register",
-    "/auth/"
+    "/auth/change-password"
 ]
 
 const authorize = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -14,7 +12,7 @@ const authorize = (req: express.Request, res: express.Response, next: express.Ne
     const token = cookies.jwt;
     const requestedURL = req.originalUrl
     if(token){
-        if (requestedURL.includes('auth')){
+        if (requestedURL.includes('auth') && !whiteList.includes(requestedURL)){
             res.cookie('jwt', token, {httpOnly: true, maxAge: 1});
         }
         jwt.verify(token, process.env.JWT_SECRET, (err:any, decoded:any) => {

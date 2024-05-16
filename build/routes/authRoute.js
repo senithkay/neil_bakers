@@ -172,6 +172,7 @@ router.post('/change-password', (req, res) => __awaiter(void 0, void 0, void 0, 
         }
         else {
             error = "Unauthorized user";
+            (0, logger_1.logger)(error);
             responseStatus = 401;
             (0, http_1.sendResponse)(data, res, error, responseStatus);
         }

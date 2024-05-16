@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
         }
         table {
-            width: 95%;
+            width: 100%;
             border-collapse: collapse;
             border-radius: 50px;
             margin: 0 auto;
@@ -58,6 +58,10 @@
             border-bottom: 0.2px solid rgb(255, 255, 255);
             text-align: center;
         }
+
+        .date-td {
+            text-align: left;
+        }
     </style>
 <body>
     <div class="headerContainer">
@@ -69,6 +73,7 @@
             <th>Opening Stock Qty</th>
             <th>Sold Stock Qty</th>
             <th>Balance Qty</th>
+            <th>Date</th>
             <th>Price Per Unit</th>
             <th>Total sales</th>
         </tr>
@@ -78,6 +83,7 @@
                 <td>{{stock.openingStock}}</td>
                 <td>{{stock.soldStock}}</td>
                 <td>{{stock.balanceStock}}</td>
+                <td class="date-td">{{stock.date}}</td>
                 <td>{{stock.pricePerUnit}}</td>
                 <td>{{stock.totalSales}}</td>
             </tr>

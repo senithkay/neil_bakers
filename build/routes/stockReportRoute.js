@@ -75,6 +75,7 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
                     reportRow.openingStock = stock.availableStock;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
+                    reportRow.date = stock.date;
                     reportData.push(reportRow);
                 }
             });
@@ -120,6 +121,7 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
                     reportRow.openingStock = stock.availableStock;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
+                    reportRow.date = stock.date;
                     reportData.push(reportRow);
                 }
             });
@@ -145,6 +147,7 @@ class StockReportRow {
         this.balanceStock = 0;
         this.pricePerUnit = 0;
         this.totalSales = 0;
+        this.date = '';
     }
 }
 exports.default = router;

@@ -5,6 +5,10 @@ export class ErrorMessages {
 }
 
 export const formatString = (text: string) => {
+    if (keyWordMap.has(text)) {
+        return keyWordMap.get(text)
+    }
+
     let result = ''
     for (let i = 0; i < text.length; i++) {
         if (i === 0) {
@@ -17,3 +21,9 @@ export const formatString = (text: string) => {
     }
     return result
 }
+
+
+
+const keyWordMap: Map<string, string> = new Map<string, string>();
+keyWordMap.set('uLocation', 'location')
+

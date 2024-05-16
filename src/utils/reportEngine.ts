@@ -9,10 +9,7 @@ export const compileReport = async (templateName : string , data : any) => {
     const filePath = path.join(TEMPLATE_DIR, templateName);
     const html = await fs.readFile(filePath, 'utf-8');
     const logoBase64 = base64Encode('./src/public/lh.jpg');
-    return handlebars.compile(html.replace('${logoBase64}', logoBase64))(data.map((item : any) => {
-        const newItem = {...item,pricePerUnit: parseFloat(item.pricePerUnit).toFixed(2),totalPrice:parseFloat(item.totalPrice).toFixed(2)};
-        return newItem;
-    }));
+    return handlebars.compile(html.replace('${logoBase64}', logoBase64))(data);
 }
 function base64Encode(file: fs.PathOrFileDescriptor) {
     try{

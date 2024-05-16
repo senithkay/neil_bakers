@@ -66,6 +66,7 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
     }
     catch (err) {
+        console.log(err);
         (0, logger_1.logger)(err);
         error = err;
         responseStatus = 500;
