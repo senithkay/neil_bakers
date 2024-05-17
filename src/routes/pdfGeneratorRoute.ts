@@ -14,6 +14,8 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
     let date = req.params.date;
     if(req.params.date === undefined || req.params.date === null){}
     let responseStatus = 200
+    let sumOfTotalSales = 0;
+    let sumOfCostOfRemaining = 0
     try{
         const branch = await Branch.findById(req.params.id).populate({path: 'stocks', populate: { path: 'productId', select: 'productName' }} );
         if (branch){
@@ -30,13 +32,20 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportRow.costOfRemainingStock = reportRow.balanceStock*reportRow.pricePerUnit
+                    sumOfTotalSales += reportRow.totalSales
+                    sumOfCostOfRemaining += reportRow.costOfRemainingStock
                     reportData.push(reportRow)
                 }
 
 
             })
             const parsedData = reportData.map((item:StockReport) => {
-                return {...item, totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2)}
+                return {...item,
+                    totalSales: item.totalSales.toFixed(2),
+                    pricePerUnit: item.pricePerUnit.toFixed(2),
+                    costOfRemainingStock: item.costOfRemainingStock.toFixed(2)
+
+                }
             })
             const browser = await puppeteer.launch()
             const page = await browser.newPage();
@@ -45,6 +54,8 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
                 info : {
                     title: 'Daily Stocks Report',
                     description: `Date : ${date}`,
+                    sumOfSales: sumOfTotalSales.toFixed(2),
+                    sumOfRemaining : sumOfCostOfRemaining.toFixed(2)
                 },
                 stocks:parsedData,
             })
@@ -80,6 +91,8 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
     let fromDate = req.params.fromDate;
     let toDate = req.params.toDate;
     if(req.params.date === undefined || req.params.date === null){}
+    let sumOfTotalSales = 0;
+    let sumOfCostOfRemaining = 0
     let responseStatus = 200
     try{
         const branch = await Branch.findById(req.params.id).populate({path: 'stocks', populate: { path: 'productId', select: 'productName' }} );
@@ -97,12 +110,18 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportRow.date = stock.date
                     reportRow.costOfRemainingStock = reportRow.balanceStock*reportRow.pricePerUnit
+                    sumOfTotalSales += reportRow.totalSales
+                    sumOfCostOfRemaining += reportRow.costOfRemainingStock
                     reportData.push(reportRow)
                 }
 
             })
             const parsedData = reportData.map((item:StockReport) => {
-                return {...item, totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2)}
+                return {...item,
+                    totalSales: item.totalSales.toFixed(2),
+                    pricePerUnit: item.pricePerUnit.toFixed(2),
+                    costOfRemainingStock: item.costOfRemainingStock.toFixed(2)
+                }
             })
             const browser = await puppeteer.launch()
             const page = await browser.newPage();
@@ -111,6 +130,8 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
                 info : {
                     title: 'Weekly Stocks Report',
                     description: `Period: ${fromDate} - ${toDate}`,
+                    sumOfSales: sumOfTotalSales.toFixed(2),
+                    sumOfRemaining : sumOfCostOfRemaining.toFixed(2)
                 },
                 stocks:parsedData,
             })
@@ -146,6 +167,8 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
     let error = undefined;
     let date = req.params.date;
     let fromDate = date + '-01'
+    let sumOfTotalSales = 0;
+    let sumOfCostOfRemaining = 0
     const monthNumber = parseInt(date.split('-')[1])
     let responseStatus = 200
     if ( monthNumber< 1 || monthNumber > 12) {
@@ -171,13 +194,19 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportRow.date = stock.date
                     reportRow.costOfRemainingStock = reportRow.balanceStock*reportRow.pricePerUnit
+                    sumOfTotalSales += reportRow.totalSales
+                    sumOfCostOfRemaining += reportRow.costOfRemainingStock
                     reportData.push(reportRow)
                 }
 
             })
 
             const parsedData = reportData.map((item:StockReport) => {
-                return {...item, totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2)}
+                return {...item,
+                    totalSales: item.totalSales.toFixed(2),
+                    pricePerUnit: item.pricePerUnit.toFixed(2),
+                    costOfRemainingStock: item.costOfRemainingStock.toFixed(2)
+                }
             })
             const browser = await puppeteer.launch()
             const page = await browser.newPage();
@@ -186,6 +215,9 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
                 info : {
                     title: 'Monthly Stocks Report',
                     description: `Month: ${date}`,
+                    sumOfSales: sumOfTotalSales.toFixed(2),
+                    sumOfRemaining : sumOfCostOfRemaining.toFixed(2)
+
                 },
                 stocks:parsedData,
             })
@@ -219,7 +251,8 @@ interface StockReport{
     soldStock:number,
     balanceStock:number,
     pricePerUnit:number,
-    totalSales:number
+    totalSales:number,
+    costOfRemainingStock:number,
 }
 
 class StockReportRow implements StockReport {

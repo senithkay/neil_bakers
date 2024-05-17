@@ -25,6 +25,8 @@ router.get('/daily/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, f
     let date = req.params.date;
     if (req.params.date === undefined || req.params.date === null) { }
     let responseStatus = 200;
+    let sumOfTotalSales = 0;
+    let sumOfCostOfRemaining = 0;
     try {
         const branch = yield Branch_1.default.findById(req.params.id).populate({ path: 'stocks', populate: { path: 'productId', select: 'productName' } });
         if (branch) {
@@ -41,11 +43,13 @@ router.get('/daily/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, f
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportRow.costOfRemainingStock = reportRow.balanceStock * reportRow.pricePerUnit;
+                    sumOfTotalSales += reportRow.totalSales;
+                    sumOfCostOfRemaining += reportRow.costOfRemainingStock;
                     reportData.push(reportRow);
                 }
             });
             const parsedData = reportData.map((item) => {
-                return Object.assign(Object.assign({}, item), { totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2) });
+                return Object.assign(Object.assign({}, item), { totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2), costOfRemainingStock: item.costOfRemainingStock.toFixed(2) });
             });
             const browser = yield puppeteer_1.default.launch();
             const page = yield browser.newPage();
@@ -53,6 +57,8 @@ router.get('/daily/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, f
                 info: {
                     title: 'Daily Stocks Report',
                     description: `Date : ${date}`,
+                    sumOfSales: sumOfTotalSales.toFixed(2),
+                    sumOfRemaining: sumOfCostOfRemaining.toFixed(2)
                 },
                 stocks: parsedData,
             });
@@ -86,6 +92,8 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
     let fromDate = req.params.fromDate;
     let toDate = req.params.toDate;
     if (req.params.date === undefined || req.params.date === null) { }
+    let sumOfTotalSales = 0;
+    let sumOfCostOfRemaining = 0;
     let responseStatus = 200;
     try {
         const branch = yield Branch_1.default.findById(req.params.id).populate({ path: 'stocks', populate: { path: 'productId', select: 'productName' } });
@@ -103,11 +111,13 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportRow.date = stock.date;
                     reportRow.costOfRemainingStock = reportRow.balanceStock * reportRow.pricePerUnit;
+                    sumOfTotalSales += reportRow.totalSales;
+                    sumOfCostOfRemaining += reportRow.costOfRemainingStock;
                     reportData.push(reportRow);
                 }
             });
             const parsedData = reportData.map((item) => {
-                return Object.assign(Object.assign({}, item), { totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2) });
+                return Object.assign(Object.assign({}, item), { totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2), costOfRemainingStock: item.costOfRemainingStock.toFixed(2) });
             });
             const browser = yield puppeteer_1.default.launch();
             const page = yield browser.newPage();
@@ -115,6 +125,8 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
                 info: {
                     title: 'Weekly Stocks Report',
                     description: `Period: ${fromDate} - ${toDate}`,
+                    sumOfSales: sumOfTotalSales.toFixed(2),
+                    sumOfRemaining: sumOfCostOfRemaining.toFixed(2)
                 },
                 stocks: parsedData,
             });
@@ -148,6 +160,8 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
     let error = undefined;
     let date = req.params.date;
     let fromDate = date + '-01';
+    let sumOfTotalSales = 0;
+    let sumOfCostOfRemaining = 0;
     const monthNumber = parseInt(date.split('-')[1]);
     let responseStatus = 200;
     if (monthNumber < 1 || monthNumber > 12) {
@@ -173,11 +187,13 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportRow.date = stock.date;
                     reportRow.costOfRemainingStock = reportRow.balanceStock * reportRow.pricePerUnit;
+                    sumOfTotalSales += reportRow.totalSales;
+                    sumOfCostOfRemaining += reportRow.costOfRemainingStock;
                     reportData.push(reportRow);
                 }
             });
             const parsedData = reportData.map((item) => {
-                return Object.assign(Object.assign({}, item), { totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2) });
+                return Object.assign(Object.assign({}, item), { totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2), costOfRemainingStock: item.costOfRemainingStock.toFixed(2) });
             });
             const browser = yield puppeteer_1.default.launch();
             const page = yield browser.newPage();
@@ -185,6 +201,8 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
                 info: {
                     title: 'Monthly Stocks Report',
                     description: `Month: ${date}`,
+                    sumOfSales: sumOfTotalSales.toFixed(2),
+                    sumOfRemaining: sumOfCostOfRemaining.toFixed(2)
                 },
                 stocks: parsedData,
             });
