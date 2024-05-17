@@ -62,11 +62,17 @@
         .date-td {
             text-align: left;
         }
+
+        .title, .description{
+            text-align: center;
+        }
     </style>
 <body>
     <div class="headerContainer">
         <img src="data:image/png;base64,${logoBase64}" alt="Logo" />
     </div>
+    <h2 class="title">{{info.title}}</h2>
+    <p class="description">{{info.description}}</p>
     <table>
         <tr>
             <th>Product name</th>
@@ -75,6 +81,7 @@
             <th>Balance Qty</th>
             <th>Date</th>
             <th>Price Per Unit</th>
+            <th>Cost of Remaining</th>
             <th>Total sales</th>
         </tr>
         {{#each stocks as |stock|}}
@@ -85,6 +92,7 @@
                 <td>{{stock.balanceStock}}</td>
                 <td class="date-td">{{stock.date}}</td>
                 <td>{{stock.pricePerUnit}}</td>
+                <td>{{stock.costOfRemainingStock}}</td>
                 <td>{{stock.totalSales}}</td>
             </tr>
         {{/each}}

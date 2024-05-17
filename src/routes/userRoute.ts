@@ -70,7 +70,7 @@ router.put('/:id', async (req: express.Request, res: express.Response) => {
     const changes = {
         email: req.body.email,
         username: req.body.username,
-        location: req.body.location,
+        uLocation: req.body.location,
     };
     let error = undefined;
     let data = {};

@@ -78,7 +78,7 @@ router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const changes = {
         email: req.body.email,
         username: req.body.username,
-        location: req.body.location,
+        uLocation: req.body.location,
     };
     let error = undefined;
     let data = {};

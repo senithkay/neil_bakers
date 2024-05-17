@@ -29,6 +29,7 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
                     reportRow.date = stock.date
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
+                    reportRow.costOfRemainingStock = reportRow.balanceStock*reportRow.pricePerUnit
                     reportData.push(reportRow)
                 }
 
@@ -42,8 +43,8 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
 
             const content = await compileReport('stocks.hbs', {
                 info : {
-                    title: 'Stocks Report',
-                    description: 'Stock report for the month',
+                    title: 'Daily Stocks Report',
+                    description: `Date : ${date}`,
                 },
                 stocks:parsedData,
             })
@@ -95,6 +96,7 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportRow.date = stock.date
+                    reportRow.costOfRemainingStock = reportRow.balanceStock*reportRow.pricePerUnit
                     reportData.push(reportRow)
                 }
 
@@ -107,8 +109,8 @@ router.get('/weekly/:id/:fromDate/:toDate', async(req: express.Request, res: exp
 
             const content = await compileReport('stocks.hbs', {
                 info : {
-                    title: 'Stocks Report',
-                    description: 'Stock report for the month',
+                    title: 'Weekly Stocks Report',
+                    description: `Period: ${fromDate} - ${toDate}`,
                 },
                 stocks:parsedData,
             })
@@ -168,10 +170,12 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportRow.date = stock.date
+                    reportRow.costOfRemainingStock = reportRow.balanceStock*reportRow.pricePerUnit
                     reportData.push(reportRow)
                 }
 
             })
+
             const parsedData = reportData.map((item:StockReport) => {
                 return {...item, totalSales: item.totalSales.toFixed(2), pricePerUnit: item.pricePerUnit.toFixed(2)}
             })
@@ -180,8 +184,8 @@ router.get('/monthly/:id/:date', async(req: express.Request, res: express.Respon
 
             const content = await compileReport('stocks.hbs', {
                 info : {
-                    title: 'Stocks Report',
-                    description: 'Stock report for the month',
+                    title: 'Monthly Stocks Report',
+                    description: `Month: ${date}`,
                 },
                 stocks:parsedData,
             })
@@ -226,6 +230,7 @@ class StockReportRow implements StockReport {
     pricePerUnit: number;
     totalSales: number;
     date:string;
+    costOfRemainingStock: number ;
 
     constructor(
     ) {
@@ -236,6 +241,7 @@ class StockReportRow implements StockReport {
         this.pricePerUnit = 0;
         this.totalSales = 0;
         this.date = '';
+        this.costOfRemainingStock = 0
     }
 }
 

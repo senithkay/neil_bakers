@@ -40,6 +40,7 @@ router.get('/daily/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, f
                     reportRow.date = stock.date;
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
+                    reportRow.costOfRemainingStock = reportRow.balanceStock * reportRow.pricePerUnit;
                     reportData.push(reportRow);
                 }
             });
@@ -50,8 +51,8 @@ router.get('/daily/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0, f
             const page = yield browser.newPage();
             const content = yield (0, reportEngine_1.compileReport)('stocks.hbs', {
                 info: {
-                    title: 'Stocks Report',
-                    description: 'Stock report for the month',
+                    title: 'Daily Stocks Report',
+                    description: `Date : ${date}`,
                 },
                 stocks: parsedData,
             });
@@ -101,6 +102,7 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportRow.date = stock.date;
+                    reportRow.costOfRemainingStock = reportRow.balanceStock * reportRow.pricePerUnit;
                     reportData.push(reportRow);
                 }
             });
@@ -111,8 +113,8 @@ router.get('/weekly/:id/:fromDate/:toDate', (req, res) => __awaiter(void 0, void
             const page = yield browser.newPage();
             const content = yield (0, reportEngine_1.compileReport)('stocks.hbs', {
                 info: {
-                    title: 'Stocks Report',
-                    description: 'Stock report for the month',
+                    title: 'Weekly Stocks Report',
+                    description: `Period: ${fromDate} - ${toDate}`,
                 },
                 stocks: parsedData,
             });
@@ -170,6 +172,7 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
                     reportRow.balanceStock = stock.remainingStock;
                     reportRow.totalSales = reportRow.soldStock * reportRow.pricePerUnit;
                     reportRow.date = stock.date;
+                    reportRow.costOfRemainingStock = reportRow.balanceStock * reportRow.pricePerUnit;
                     reportData.push(reportRow);
                 }
             });
@@ -180,8 +183,8 @@ router.get('/monthly/:id/:date', (req, res) => __awaiter(void 0, void 0, void 0,
             const page = yield browser.newPage();
             const content = yield (0, reportEngine_1.compileReport)('stocks.hbs', {
                 info: {
-                    title: 'Stocks Report',
-                    description: 'Stock report for the month',
+                    title: 'Monthly Stocks Report',
+                    description: `Month: ${date}`,
                 },
                 stocks: parsedData,
             });
@@ -217,6 +220,7 @@ class StockReportRow {
         this.pricePerUnit = 0;
         this.totalSales = 0;
         this.date = '';
+        this.costOfRemainingStock = 0;
     }
 }
 exports.default = router;
