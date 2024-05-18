@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logger = void 0;
-const Common_1 = require("./Common");
+const Common_1 = require("./common");
 const logger = (error) => {
     let description = '';
     if (error.errors !== undefined && error.errors !== null) {

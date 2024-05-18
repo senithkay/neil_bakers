@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendResponse = void 0;
-const Common_1 = require("./Common");
+const Common_1 = require("./common");
 const sendResponse = (payload, res, error, statusCode) => {
     let description = '';
     let time = Date.now();
