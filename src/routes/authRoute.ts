@@ -32,7 +32,7 @@ router.post("/login", async (req, res) => {
                data = {_id: user._id, username: user.username, uLocation: user.uLocation, isSuperAdmin:user.isSuperAdmin, email: user.email}
                const token = createToken(user._id, user.uLocation, user.isSuperAdmin);
 
-               res.cookie('jwt', token, {httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain:process.env.CLIENT_DOMAIN});
+               res.cookie('jwt', token, {httpOnly: false, maxAge: process.env.JWT_MAX_AGE, domain:process.env.CLIENT_DOMAIN, sameSite:false});
                responseCode = 200
            }
            sendResponse(data, res, error, responseCode);
