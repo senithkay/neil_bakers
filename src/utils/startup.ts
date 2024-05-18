@@ -7,7 +7,7 @@ export const startup = ()=> {
     const envType = process.argv[2]
     if (envType === undefined) {
         console.log("[ERROR] Loading environment type failed")
-        process.exit(1);
+        dotenv.config({path: `.env.prod`})
     }
     console.log("[INFO] Environment type loaded successfully")
     if (envType === 'dev'){

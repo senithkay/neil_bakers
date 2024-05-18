@@ -4,7 +4,7 @@ import {sendResponse} from "../utils/http";
 import {logger} from "../utils/logger";
 import {createFakeToken, createToken} from "../utils/auth";
 import bcrypt from "bcrypt";
-import {ErrorMessages} from "../utils/Common";
+import {ErrorMessages} from "../utils/common";
 import crypto from "node:crypto";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";

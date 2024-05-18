@@ -16,7 +16,6 @@ import {startup} from "./utils/startup";
 import pdfGeneratorRoute from "./routes/pdfGeneratorRoute";
 
 
-
 startup()
 const app = express();
 
@@ -24,6 +23,9 @@ app.use(cors({
     origin: true,
     credentials: true,
 }))
+app.get('/test', (req,res)=>{
+    res.send('Back status: running')
+})
 app.use(cookieParser());
 app.use(express.json({ limit: '25mb' }));
 app.use(authorize);

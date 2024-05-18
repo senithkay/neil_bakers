@@ -1,5 +1,5 @@
 import express from "express";
-import {formatString} from "./Common";
+import {formatString} from "./common";
 
 export const sendResponse = (payload: any, res: express.Response, error? : any, statusCode?:number) => {
     let description = '';

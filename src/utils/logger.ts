@@ -1,4 +1,4 @@
-import {formatString} from "./Common";
+import {formatString} from "./common";
 
 export const logger = (error: any)=> {
     let description = ''

@@ -36,18 +36,15 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
                     sumOfCostOfRemaining += reportRow.costOfRemainingStock
                     reportData.push(reportRow)
                 }
-
-
             })
             const parsedData = reportData.map((item:StockReport) => {
                 return {...item,
                     totalSales: item.totalSales.toFixed(2),
                     pricePerUnit: item.pricePerUnit.toFixed(2),
                     costOfRemainingStock: item.costOfRemainingStock.toFixed(2)
-
                 }
             })
-            const browser = await puppeteer.launch()
+            const browser = await puppeteer.launch({headless:true})
             const page = await browser.newPage();
 
             const content = await compileReport('stocks.hbs', {
@@ -66,7 +63,6 @@ router.get('/daily/:id/:date', async(req: express.Request, res: express.Response
                 format: 'A4',
                 printBackground: true,
             });
-
             await browser.close();
             res.writeHead(200, {
                 'Content-Type': 'application/pdf',
